@@ -1,0 +1,33 @@
+GOALS
+
+	The goal of this project is to create software that will enable non-programmers
+	(e.g. exhibit designers and performance artists) to define interactive spaces, 
+	in which the movements of participants trigger multi-media events.  
+
+BASIC DECISIONS
+
+    The most obvious sensor would seem to be the MicroSoft Kinect:
+	it is readily available
+	its USB interface can be connected to any machine and OS
+	it is fairly well supported by open source s/w (OpenNI)
+
+    The most obvious language would seem to be Java:
+	it is a relatively high level language (e.g. vs C/C++)
+	it is OS and hardware independent
+	it has good integrated development environments (e.g. Eclipse)
+	the OpenNI libraries have Java bindings
+
+HISTORY
+
+    0.1	proof of concept
+
+	Written under "Processing", hard coded to recognize specific
+	locations and trigger specific events.  It was set up at a
+	conference and proved sufficiently compelling to justify 
+	further work.
+
+    0.2 first cut at separating the exhibit from the code
+
+	Accepts region and rule descriptions in XML files (which
+	can be created by helper applications), eliminating the
+	need for the exhibit designers to interact with the code.

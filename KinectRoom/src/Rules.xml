@@ -1,0 +1,42 @@
+<rules>
+    <rule name="enter A" region="A" event="ENTRY">
+        <image file="sampleImage" />
+    </rule>
+    <rule name="exit A" region="A" event="EXIT">
+        <image file="cancel" />
+    </rule>
+    <rule name="enter A-big" region="A-big" event="ENTRY">
+    </rule>
+    <rule name="exit A-big" region="A-big" event="EXIT">
+    </rule>
+    <rule name="enter B 3p" region="B" event="ENTRY" state="2" next="3">
+    </rule>
+    <rule name="enter B 2p" region="B" event="ENTRY" state="1" next="2">
+    </rule>
+    <rule name="enter B 1p" region="B" event="ENTRY" state="0" next="1">
+        <sound file="sampleSound" />
+    </rule>
+    <rule name="exit B was 0" region="B" event="EXIT" state="0">
+    </rule>
+    <rule name="exit B was 1" region="B" event="EXIT" state="1" next="0">
+        <sound file="cancel" />
+    </rule>
+    <rule name="exit B was 2" region="B" event="EXIT" state="2" next="1">
+    </rule>
+    <rule name="exit B was 3" region="B" event="EXIT" state="3" next="2">
+    </rule>
+    <rule name="enter C" region="C" event="ENTRY">
+        <text file="sampleText" />
+    </rule>
+    <rule name="exit C" region="C" event="EXIT">
+        <text file="cancel" />
+    </rule>
+    <rule name="enter D 3x" region="D" event="ENTRY" state="2" next="3">
+    </rule>
+    <rule name="enter D 2x" region="D" event="ENTRY" state="1" next="2">
+    </rule>
+    <rule name="enter D 1x" region="D" event="ENTRY" state="0" next="1">
+    </rule>
+    <rule name="exit D" region="D" event="EXIT">
+    </rule>
+</rules>
