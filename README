@@ -1,8 +1,9 @@
 GOALS
 
-	The goal of this project is to create software that will enable non-programmers
-	(e.g. exhibit designers and performance artists) to define interactive spaces, 
-	in which the movements of participants trigger multi-media events.  
+	The goal of this project is to create software that will enable 
+	non-programmers (e.g. exhibit designers and performance artists) 
+	to define interactive spaces, in which the movements of participants 
+	trigger multi-media events.  
 
 BASIC DECISIONS
 
@@ -16,6 +17,76 @@ BASIC DECISIONS
 	it is OS and hardware independent
 	it has good integrated development environments (e.g. Eclipse)
 	the OpenNI libraries have Java bindings
+
+IMPORTING THIS PROJECT INTO Eclipse
+
+    1. You want to have the "git" plugin installed:
+
+	http://www.vogella.com/articles/EGit/article.html
+
+    2. You need to install SimpleOpenNI on your system
+
+	https://code.google.com/p/simple-openni/wiki/Installation
+	(except for copying SimpleOpenNI.zip into ~/sketchbook)
+
+    3. Clone a local copy and import the project into Eclipse
+
+	eclipse:
+		FILE->import->Git->Projects from Git
+		Linux URI: git@github.com:/cwkampe/KinectRoom.git
+	        Windows URI: https://github.com/cwkampe/KinectRoom
+
+  	    note:
+		If this is a new workspace, you will probably want
+		to Window->Customize Workspace/Show View because we
+		are bypassing the Java Project Wizard that normally
+		sets this stuff up for you.
+
+    4. Complete the importation of SimpleOpenNI into the new project
+
+	Hopefully, all you have to do is copy the (appropriate) native 
+	SimpleOpenNI library from SimpleOpenNI/library into the Java-0.2/bin
+	directory.
+
+        This repo already contains:
+	    Processing core.jar
+	    SimpleOpenNI.jar
+	    a .classpath that 
+		includes those two jars
+		a redirection to Java-0.2/bin for native libraries
+
+	otherwise you would need to import these into the project:
+		http://processing.org/tutorials/eclipse
+		https://code.google.com/p/simple-openni/wiki/IDE
+
+	CAVEAT:
+		I have tested the processing part of this bundling,
+		but not yet having my own kinect, I have not yet
+		tested that the bundled SimpleOpenNI.jar works and
+		properly binds to the native library.
+
+    5. Create run configurations for the new project
+
+	select RuleBuilder.java, right menu click "run as", 
+		select "Java Application"
+
+	selct ProcessingKinnect.java, right menu click "run as", 
+		select "Java Applet"
+
+	you will probably also want to update those Run Configurations
+	to set up default parameters.  I, for example, use:
+	
+		RuleBuilder (Application): 
+			--debug=1 --regions=bin/Regions.xml
+
+		ProcessingKinect (Applet):
+			test = 3
+			debug = 2
+
+
+	NOTE:
+		In the normal (non-test) mode, ProcessingKinect will not
+		properly initialize if it cannot open a Kinect
 
 HISTORY
 
@@ -31,3 +102,4 @@ HISTORY
 	Accepts region and rule descriptions in XML files (which
 	can be created by helper applications), eliminating the
 	need for the exhibit designers to interact with the code.
+
