@@ -76,7 +76,8 @@ public class ProcessingKinect extends PApplet {
 		// create and initialize the space
 		s = new Space();
 		p = getParameter("debug");
-		s.debug(  (p == null) ? 0 : Integer.parseInt(p));
+		debugLevel = (p == null) ? 0 : Integer.parseInt(p);
+		s.debug(debugLevel);
 		try {
 			s.readRegions(regions);
 			s.readRules(rules);
@@ -114,19 +115,23 @@ public class ProcessingKinect extends PApplet {
 
 		// how many players is the kinect tracking?
 		int n = (k == null) ? 0 : k.getNumberOfPlayers();
+		if (debugLevel > 2)
+			System.out.println("Kinect returns " + n + " players");
 		for (int i = 0; i < n; i++) {	// for each
 			Coord c = k.getPlayerLocation();	// get current recorded location
-			if (c != null && i < maxActors) {
+			if (c == null) {
+				if (debugLevel > 2)
+					System.out.println("Player " + n + " has no position");
+			} else if (i < maxActors) {
 				Actor a = actors[i];			// FIXME binding of players to actors
 				if (a.lastPosition() == null && debugLevel > 1)
 					System.out.println("Actor " + a + " entered at " + c);
+				else if (debugLevel > 1)
+					System.out.println("    Actor " + a + " at " + c);
 				
 				s.processPosition(a, c);	// process the new position
 				a.lastPosition(c);			// update the known position
-				// soon to be superfluous debugging output
-				if (debugLevel > 1)
-					System.out.println ("Actor " + a + " at " + c);
-			}	
+			}
 		}
 		
 		// reset any actors no longer known to the kinect

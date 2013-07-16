@@ -18,7 +18,6 @@ public class KinectSensor {
 		kinect = new SimpleOpenNI(pa);
 		kinect.enableDepth();
 		kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_NONE); 
-		kinect = null;
 	}
 
 	/**
@@ -42,7 +41,7 @@ public class KinectSensor {
 		kinect.update();
 		IntVector userList = new IntVector();
 		kinect.getUsers(userList);
-
+		
 		// get the current position of the specified user
 		if (userList.size() <= player) 
 			return null;  
