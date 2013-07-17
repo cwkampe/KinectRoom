@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
  */
 public class Space {
 
+	private String name;			// name of this space
 	private DocumentBuilder db;		// parser instance
 	private List<Region> regions;	// list of registered regions
 	private int debugLevel;			// level of desired debug output
@@ -39,6 +40,7 @@ public class Space {
 	public Space() {
 		regions = new LinkedList<Region>();
 		debugLevel = 1;			// basic debug info
+		name = null;			// we do not yet have a name
 		db = null;				// we have not yet created a parser
 		entryPos = null;		// we don't have any regions yet
 		lastActor = null;		// we haven't tested any actors yet
@@ -47,6 +49,21 @@ public class Space {
 
 	public void debug(int level) {		// control the level of diagnostics
 		debugLevel = level;
+	}
+	
+	/**
+	 * @return the name of this space
+	 */
+	public String name() {
+		return this.name;
+	}
+	
+	/**
+	 * set the name of this space
+	 * @param newname
+	 */
+	public void name( String newname ) {
+		this.name = newname;
 	}
 	
 	/**
@@ -174,9 +191,17 @@ public class Space {
 		if (!root.getNodeName().equals("regions")) {
 			throw new InvalidObjectException(path + ": document type not 'regions'");
 		}
-
+		
+		// see if this region has a name
+		Node n = root.getAttributes().getNamedItem("name");
+		if (n != null) {
+			this.name = n.getNodeValue();
+			if (debugLevel > 1)
+				System.out.println("  Space: " + this.name);
+		}
+		
 		/* pull out the region descriptions */
-		for( Node n = root.getFirstChild(); 
+		for( n = root.getFirstChild(); 
 				n != null; 
 				n = n.getNextSibling() ) {
 			if (!n.getNodeName().equals("region"))
@@ -309,7 +334,10 @@ public class Space {
 	 */
 	public String regionsToXML() {
 		
-		String out = "<regions>\n";
+		String out = "<regions";
+		if (name != null)
+			out += " name\" + name + \"";
+		out +=">\n";
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();

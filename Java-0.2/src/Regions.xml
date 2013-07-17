@@ -1,4 +1,4 @@
-<regions>
+<regions name="Sanity Check">
         <region name="left" radius="200">
         	<position x="-3000" y="1500" z="2000" />
         </region>
