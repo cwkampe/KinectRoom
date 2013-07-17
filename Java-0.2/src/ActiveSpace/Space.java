@@ -130,15 +130,23 @@ public class Space {
 	}
 
 	/**
+	 * wrapper that assumes we want to use Y values
+	 */
+	public void readRegions( String path ) 
+			throws InvalidObjectException, ParserConfigurationException, URISyntaxException, IOException {
+		readRegions( path, false );
+	}
+	/**
 	 * initialize the region map from an XML description
 	 * 
 	 * @param path	name of description file
+	 * @param ignoreY whether or not we should ignore Y values
 	 * @return			true if initialization was successful
 	 * @throws ParserConfigurationException 
 	 * @throws IOException 
 	 * @throws URISyntaxException 
 	 */
-	public void readRegions( String path )
+	public void readRegions( String path, boolean ignoreY )
 			throws ParserConfigurationException, URISyntaxException, IOException, InvalidObjectException {	
 
 		if (debugLevel > 0)
@@ -187,7 +195,8 @@ public class Space {
 					continue;
 
 				float x = Float.parseFloat(p.getAttributes().getNamedItem("x").getNodeValue());
-				float y = Float.parseFloat(p.getAttributes().getNamedItem("y").getNodeValue());
+				float y = ignoreY ? 0 : 
+					Float.parseFloat(p.getAttributes().getNamedItem("y").getNodeValue());
 				float z = Float.parseFloat(p.getAttributes().getNamedItem("z").getNodeValue());
 
 				/* register this region in this space */

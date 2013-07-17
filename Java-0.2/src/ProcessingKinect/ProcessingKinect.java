@@ -15,6 +15,7 @@ public class ProcessingKinect extends PApplet {
 	private Actor actors[];		// the known actors
 	private int maxActors;		// upper limit on number of actors
 	private	int debugLevel;		// how noisy we want to be
+	private boolean ignoreY;	// ignore Y values
 
 	private int testsRequested;	// number of test passes requested
 	private int testsRun;		// number of test passes actually run
@@ -37,6 +38,7 @@ public class ProcessingKinect extends PApplet {
 		String rules = getParameter("rules");
 		if (rules == null) 
 			rules = "Rules.xml";
+		ignoreY = isTrue(getParameter("ignoreY"));
 		
 		// FIXME figure out where images, sound and prose come from
 		String images = getParameter("images");
@@ -79,7 +81,7 @@ public class ProcessingKinect extends PApplet {
 		debugLevel = (p == null) ? 0 : Integer.parseInt(p);
 		s.debug(debugLevel);
 		try {
-			s.readRegions(regions);
+			s.readRegions(regions, ignoreY);
 			s.readRules(rules);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -123,6 +125,8 @@ public class ProcessingKinect extends PApplet {
 				if (debugLevel > 2)
 					System.out.println("Player " + n + " has no position");
 			} else if (i < maxActors) {
+				if (ignoreY)
+					c.y = 0;			// ignore all Y values
 				Actor a = actors[i];			// FIXME binding of players to actors
 				if (a.lastPosition() == null && debugLevel > 1)
 					System.out.println("Actor " + a + " entered at " + c);
@@ -149,5 +153,22 @@ public class ProcessingKinect extends PApplet {
 		if (mousePressed) {
 			line(mouseX, mouseY, pmouseX, pmouseY);
 		}
+	}
+	
+	/**
+	 * determine whether or not a string is some form of "true"
+	 * 
+	 * @param s		string to be tested
+	 * @return		true/false
+	 */
+	static boolean isTrue(String s) {
+		if (s == null)
+			return false;
+		
+		String yes[] = { "true", "True", "TRUE", "T", "yes", "Yes", "YES", "Y" };
+		for( int i = 0; i < yes.length; i++ )
+			if (s.equals(yes[i]))
+				return true;
+		return false;
 	}
 }
