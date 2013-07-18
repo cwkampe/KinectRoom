@@ -335,7 +335,8 @@ public class Space {
 	public String regionsToXML() {
 		
 		String out = "<regions";
-		if (name != null)
+		// not all regions have names
+		if (name != null && !name.equals(""))
 			out += " name=\"" + name + "\"";
 		out +=">\n";
 		Iterator<Region> it = regions.iterator();
