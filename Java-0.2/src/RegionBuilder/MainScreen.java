@@ -35,6 +35,7 @@ public class MainScreen extends JFrame
 	private JTextField pos_z;
 	private JTextField radius;
 	private JTextField regionName;
+	private JTextField spaceName;
 	private JMenuItem fileSaveAs;
 	private JMenuItem fileExit;
 	private JMenuItem fileSave;
@@ -147,7 +148,16 @@ public class MainScreen extends JFrame
 		e.setLayout(new BoxLayout(e, BoxLayout.Y_AXIS));
 		e.setBorder(BorderFactory.createEmptyBorder(B,B,B,B));
 		
-		// create the top row: region name, position, radius
+		// create the first row: space name
+		h = new JPanel();
+		h.setLayout(new BoxLayout(h, BoxLayout.X_AXIS));
+		h.setBorder(BorderFactory.createEmptyBorder(B,B,B,B));
+		h.add(new JLabel("Space name"));
+		spaceName = new JTextField(NAME_WIDTH);
+		h.add(spaceName);
+		e.add(h);
+		
+		// create the next row: region name, position, radius
 		h = new JPanel();
 		h.setLayout(new BoxLayout(h, BoxLayout.X_AXIS));
 		h.setBorder(BorderFactory.createEmptyBorder(B,B,B,B));
@@ -318,6 +328,11 @@ public class MainScreen extends JFrame
 					JOptionPane.ERROR_MESSAGE);
 			// e.printStackTrace();
 		}
+		
+		// see if we got a space name
+		String s = space.name();
+		if (s != null)
+			spaceName.setText(s);
 	}
 	
 	
@@ -353,7 +368,12 @@ public class MainScreen extends JFrame
 			else
 				return;
 		}
-	
+		
+		// if we have a space name, set it
+		String s = spaceName.getText();
+		if (s != null)
+			space.name(s);
+		
 		// save the current rule set to it
 		if (debugLevel > 0)
 			System.out.println("saving regions to " + outputFile);
@@ -376,6 +396,7 @@ public class MainScreen extends JFrame
 	 * pull the values out of the editor panel to create a new region
 	 */
 	private void createRegion() {
+
 		try {
 			int x = getPosition(pos_x.getText());
 			int y = getPosition(pos_y.getText());

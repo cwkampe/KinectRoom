@@ -336,7 +336,7 @@ public class Space {
 		
 		String out = "<regions";
 		if (name != null)
-			out += " name\" + name + \"";
+			out += " name=\"" + name + "\"";
 		out +=">\n";
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
