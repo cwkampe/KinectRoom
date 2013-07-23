@@ -1,9 +1,9 @@
 package RegionBuilder;
 
 import java.io.*;
-
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -17,10 +17,10 @@ import ProcessingKinect.KinectSensor;
  */
 public class MainScreen extends JFrame 
 						implements	ActionListener, 
-									MouseListener,
 									WindowListener {
 	
-	private KinectSensor kinect;// the kinect we read from
+	public boolean finished;	// have we been told to shut down
+	
 	private Space space;		// space for regions and rules
 	private int debugLevel;		// desired level of diagnostic output
 	private boolean changes;	// have we made any changes
@@ -60,20 +60,19 @@ public class MainScreen extends JFrame
 	 * @param s		Space containing the regions and rules
 	 * @param path	to directory containing media files
 	 */
-	public MainScreen( KinectSensor k, String regionFile, int debug )  {
-		this.kinect = k;				// remember our kinect
+	public MainScreen( String regionFile, int debug )  {
 		this.space = new Space();		// create an ActiveSpace
 		this.debugLevel = debug;		// figure out how verbose to be
 		space.debug(debugLevel);		// only the most basic debug info
+		this.finished = false;
 		
-		// get a handle on our primary window
+		// get a handle on our primary window and capture control events
 		mainPane = getContentPane();
 		addWindowListener( this );		// so I can handle window close events
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		// create the main panel widgetry
 		createMenus();			// create the menu hierarchy
-		createScreen();			// create a list of defined rules
 		createEditor();			// create the rule editor panel
 		setVisible( true );		// make this all visible
 		pack();					// validate widgets, compute display size
@@ -119,19 +118,6 @@ public class MainScreen extends JFrame
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
 		setJMenuBar( menuBar );	
-	}
-	
-	/**
-	 * create a panel on which we can displayh images
-	 */
-	private void createScreen() {
-		
-		// FIXME - start with something black and then figure out how to update it
-		ImageIcon img = new ImageIcon("/home/markk/Pictures/Sort Me/abstract.jpeg");
-		
-		screen = new JLabel(img);
-		screen.addMouseListener(this);
-		mainPane.add(screen, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -252,45 +238,16 @@ public class MainScreen extends JFrame
 		}
 	}
 	
-	/*
-	 * we have a full complement of MouseListener entry points,
-	 * but the only one we actually care about is Clicked
+	/**
+	 * copy a set of room coordinates into the editor window
+	 * 
+	 * @param c coordinates to set
 	 */
-	public void mouseClicked(MouseEvent e)
-	{
-		// get relative coordinates in the panel
-		int x = e.getX() - screen.getWidth()/2;		// left is negative
-		int y = screen.getHeight()/2 - e.getY();	// down is negative
-		
-		// get the kinect to turn these into room coordinates
-		Coord c = getCoord(x,y);
-		
-		// copy these into the editor
+	public void setCoord( Coord c ) {
+		// copy these into the editor window
 		pos_x.setText("" + (int) c.x);
 		pos_y.setText("" + (int) c.y);
 		pos_z.setText("" + (int) c.z);
-	}
-	public void mousePressed(MouseEvent e) {}
-	public void mouseReleased(MouseEvent e) {}
-	public void mouseEntered(MouseEvent e) {}
-	public void mouseExited(MouseEvent e) {}
-	
-	/**
-	 * FIXME - this should be implemented in KinectSensor
-	 */
-	Coord getCoord(int x, int y) {
-		
-		float cz = 2000;		// everything is simulated 2M away
-		
-		int H_RES = 640;		// X resolution in pixels
-		float H_FIELD = 838;	// mm at one meter (1000 sin 57deg)
-		float cx = (H_FIELD/H_RES) * x * cz / 1000;
-		
-		int V_RES = 480;		// Y resolution in pixels
-		float V_FIELD = 681;	// mm at one meter (1000 sin 43deg)
-		float cy = (V_FIELD/V_RES) * y * cz / 1000;
-		
-		return new Coord(cx, cy, cz); 
 	}
 
 	/* 
@@ -349,7 +306,8 @@ public class MainScreen extends JFrame
 			if (choice == JOptionPane.NO_OPTION)
 				break;
 		}
-		System.exit(0);
+		
+		this.finished = true;	// tell the main loop we're done
 	}
 	
 	/**
@@ -431,4 +389,7 @@ public class MainScreen extends JFrame
 		
 		return value;
 	}
+
+
+
 }

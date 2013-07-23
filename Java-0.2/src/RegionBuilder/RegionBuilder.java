@@ -1,5 +1,6 @@
 package RegionBuilder;
 
+import ActiveSpace.Coord;
 import ProcessingKinect.KinectSensor;
 
 /**
@@ -10,6 +11,9 @@ import ProcessingKinect.KinectSensor;
  * @author markk
  */
 public class RegionBuilder {
+	
+	private MainScreen gui;		// reference to the gui widgetry
+	private KinectViewer view;	// reference to the Kinect viewer window
 
 	private static String usage[] = {
 		"RegionBuilder [switches] [regions-file]",
@@ -39,8 +43,28 @@ public class RegionBuilder {
 			}
 		}
 		
-		KinectSensor k = null;	// FIXME - integrate the kinect
-		new MainScreen( k, regionFile, debugLevel );
+		// instantiate an app and GUI and kick off the main loop
+		RegionBuilder app = new RegionBuilder();
+		app.view = new KinectViewer();
+		app.gui = new MainScreen( regionFile, debugLevel );
+		app.run();
+	}
+	
+	/**
+	 * main loop
+	 */
+	public void run() {
+		while( !gui.finished) {
+			view.update();	// re-read the kinect
+			
+			// check for position selections 
+			Coord c = view.lastClick();
+			if (c != null)
+				gui.setCoord(c);
+			
+			view.repaint();	// update the display
+		}
+		System.exit(0);
 	}
 
 	/**
