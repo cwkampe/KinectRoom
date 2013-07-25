@@ -1,5 +1,6 @@
 package ActiveSpace;
 
+import java.awt.Container;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.net.URI;
@@ -8,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,7 +30,7 @@ public class Space {
 	private List<Region> regions;	// list of registered regions
 	private String fileBase;		// prefix for fetched files
 	private int debugLevel;			// level of desired debug output
-	private JFrame display;			// window for displaying images
+	private Container display;			// window for displaying images
 	
 	// these are only used for testing (simulated actor walks)
 	private Coord entryPos;		// where new actors enter the scene
@@ -81,10 +81,10 @@ public class Space {
 	/**
 	 * set the display window for images in this space
 	 * 
-	 * @param frame
+	 * @param container
 	 */
-	public void display( JFrame frame ) {
-		display = frame;
+	public void display( Container container ) {
+		display = container;
 	}
 	
 	/**

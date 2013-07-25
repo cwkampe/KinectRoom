@@ -1,10 +1,9 @@
 package ActiveSpace;
 
+import java.awt.Container;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.JFrame;
 
 /**
  * A Region is a bounded area that can generate entry
@@ -141,7 +140,7 @@ public class Region {
 	 * @param debug level
 	 * @return whether or not any events were generated
 	 */
-	public boolean processPosition(Actor actor, Coord newPosn, JFrame display, int debug) {
+	public boolean processPosition(Actor actor, Coord newPosn, Container display, int debug) {
 
 		Rule.EventType event = Rule.EventType.NONE;
 		final float epsilon = 0.05F;	// debounce threshold

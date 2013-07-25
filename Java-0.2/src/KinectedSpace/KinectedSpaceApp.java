@@ -1,5 +1,7 @@
 package KinectedSpace;
 
+import java.awt.Dimension;
+
 /**
  * main class
  * 		process command line arguments
@@ -19,6 +21,8 @@ public class KinectedSpaceApp {
 		"        --regions=regions-file",
 		"        --rules=rules-file",
 		"        --base=prefix",
+		"        --height=#",
+		"        --width=#",
 		"        --test=#",
 		"        --debug=#"
 	};
@@ -26,6 +30,9 @@ public class KinectedSpaceApp {
 	private static final String REGIONFILE = "bin/Regions.xml";
 	private static final String RULEFILE = "bin/Rules.xml";
 	private static final String PREFIX = "bin";
+	private static final int HEIGHT = 768;
+	private static final int WIDTH = 1024;
+	
 	private static final int MS_PER_STEP = 10;		// test movement rate
 	
 	public static void main(String args[]) {
@@ -33,6 +40,8 @@ public class KinectedSpaceApp {
 		String regionFile = null;
 		String ruleFile = null;
 		String prefix = null;
+		int height = HEIGHT;
+		int width = WIDTH;
 		int testPasses = 0;
 		int debug = 0;
 		
@@ -44,6 +53,10 @@ public class KinectedSpaceApp {
 				ruleFile = args[i].substring(args[i].indexOf('=') + 1);
 			} else if (args[i].contains("base=")) {
 				prefix = args[i].substring(args[i].indexOf('=') + 1);
+			} else if (args[i].contains("height=")) {
+				height = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
+			} else if (args[i].contains("width=")) {
+				width = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
 			} else if (args[i].contains("debug=")) {
 				debug = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
 			} else if (args[i].contains("test=")) {
@@ -70,7 +83,8 @@ public class KinectedSpaceApp {
 			prefix = PREFIX;
 		
 		// instantiate a KinectedSpace
-		KinectedSpaceApp app = new KinectedSpaceApp(regionFile, ruleFile, prefix, debug);
+		Dimension d = new Dimension(width, height);
+		KinectedSpaceApp app = new KinectedSpaceApp(regionFile, ruleFile, prefix, d, debug);
 		if (testPasses > 0) {
 			while( app.room.test(testPasses) ) {
 				try {
@@ -91,14 +105,14 @@ public class KinectedSpaceApp {
 	/**
 	 * initialize an app instance
 	 */
-	public KinectedSpaceApp( String regionFile, String ruleFile, String prefix, int debugLevel ) {
-		room = new KinectedSpace();
+	public KinectedSpaceApp( String regionFile, String ruleFile, String prefix, Dimension d, int debugLevel ) {		
+		// create the basic space
+		room = new KinectedSpace(d);
 		room.debug(debugLevel);
-		room.prefix(prefix);
 		room.readRegions(regionFile);
+		room.prefix(prefix);
 		room.readRules(ruleFile);
 		sense = null;
-
 	}
 	
 	/**

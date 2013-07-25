@@ -7,6 +7,9 @@ package KinectedSpace;
  *    a set of rules defining region entry/exit events
  */
 
+import java.awt.Dimension;
+import javax.swing.JWindow;
+
 import ActiveSpace.Actor;
 import ActiveSpace.Coord;
 import ActiveSpace.Space;
@@ -28,7 +31,7 @@ public class KinectedSpace {
 	// pseudo-tunable constants
 	private static final int MAX_ACTORS = 10;	// maximum concurrent actors
 	
-	public KinectedSpace() {
+	public KinectedSpace( Dimension d ) {
 		finished = false;		// we're running
 		ignoreY = true;			// treat space as two dimensional
 		maxActors = MAX_ACTORS;	// limited number of concurrent actors
@@ -36,6 +39,13 @@ public class KinectedSpace {
 		prefix = null;			// we have no base prefix
 		
 		s = new Space();
+		
+		// create a display window for images
+		JWindow f = new JWindow();
+		f.setPreferredSize( d );
+		f.pack();
+		f.setVisible(true);
+		s.display(f);
 		
 		actors = new Actor[maxActors];
 		updates = new int[maxActors];
@@ -127,6 +137,10 @@ public class KinectedSpace {
 	public void prefix( String base ) {
 		this.prefix = base;
 		s.prefix( base );
+	}
+	
+	public String name() {
+		return( s.name());
 	}
 	
 	/**

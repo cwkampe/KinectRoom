@@ -1,6 +1,8 @@
 package KinectedSpace;
 
 import java.applet.Applet;
+import java.awt.Dimension;
+
 
 /**
  * Top level module for KinectedSpace - applet version
@@ -19,6 +21,8 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 	private static final String REGIONFILE = "Regions.xml";
 	private static final String RULEFILE = "Rules.xml";
 	private static final int MS_PER_STEP = 10;		// test execution speed
+	private static final int HEIGHT = 768;
+	private static final int WIDTH = 1024;
 	
 	/**
 	 * initialization method ... called at startup
@@ -34,13 +38,18 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		if (ruleFile == null) 
 			ruleFile = RULEFILE;
 		String prefix = getParameter("base");
-		String s = getParameter("test");
+		String s = getParameter("height");
+		int height = (s == null) ? HEIGHT : Integer.parseInt(s);
+		s = getParameter("width");
+		int width = (s == null) ? WIDTH : Integer.parseInt(s);
+		s = getParameter("test");
 		testPasses = (s == null) ? 0 : Integer.parseInt(s);
 		s = getParameter("debug");
 		debugLevel = (s == null) ? 0 : Integer.parseInt(s);
 		
 		// instantiate the space
-		room = new KinectedSpace();
+		Dimension d = new Dimension(width,height);
+		room = new KinectedSpace(d);
 		room.debug(debugLevel);
 		room.prefix(prefix);
 		room.readRegions(regionFile);
