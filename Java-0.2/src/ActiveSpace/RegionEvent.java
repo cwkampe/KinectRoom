@@ -1,5 +1,17 @@
 package ActiveSpace;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.JFrame;
+
+
 /**
  * a RegionEvent is a call-back object to be invoked
  * when an Actor enters or leaves a Region.  
@@ -15,6 +27,7 @@ public class RegionEvent {
 	private String imageFile;	// name of file containing image to display
 	private String textFile;	// name of file containing text to display
 	private String soundFile;	// name of file containing sound to play
+	private Clip audio;			// active audio clip
 	
 	/**
 	 * Constructor for new callback
@@ -97,6 +110,7 @@ public class RegionEvent {
 	 * @param r	Region in which this event happened
 	 * @param a	Actor that triggered this event
 	 * @param t	Type of event (e.g. entry/exit)
+	 * @param debug level
 	 * 
 	 * NOTE:
 	 * 		the generic implementation does not use any of its
@@ -104,7 +118,7 @@ public class RegionEvent {
 	 * 		are provided in case a smaller callback handler wants
 	 * 		to take actions based on the state of the region/actor.
 	 */
-	public void callback( Region r, Actor a, Rule.EventType t) {
+	public void callback( Region r, Actor a, Rule.EventType t, JFrame display, int debug) {
 		
 		if (imageFile != null) {	// FIXME: add support for image display
 			if (imageFile.equals("cancel")) {
@@ -114,11 +128,30 @@ public class RegionEvent {
 			}
 		}
 		
-		if (soundFile != null) {	// FIXME: add support for sound playing
+		if (soundFile != null) {
 			if (soundFile.equals("cancel")) {
-				System.out.println("UNIMPLEMENTED ... silence sound");
+				if (debug > 0)
+					System.out.println("   ... silence sound");
+				if (audio != null) {
+					if (audio.isRunning())
+						audio.stop();
+					audio = null;
+				}
 			} else {
-				System.out.println("UNIMPLEMENTED ... play sound " + soundFile);
+				if (debug > 0) {
+					System.out.println("   ... play sound clip " + soundFile);
+				}
+				try {
+					File in = new File(soundFile);
+					AudioInputStream au = AudioSystem.getAudioInputStream(in);
+					audio = AudioSystem.getClip();
+					audio.open(au);
+					audio.start();
+				} catch (Exception e) {
+					System.out.println("unable to process sound file " + soundFile);
+					e.printStackTrace();
+					audio = null;
+				}
 			}
 		}
 		

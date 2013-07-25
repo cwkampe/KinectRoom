@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 /**
  * A Region is a bounded area that can generate entry
  * and exit events as Actors move in and out of them.
@@ -135,9 +137,11 @@ public class Region {
 	 * call-backs.
 	 * 
 	 * @param actor	Actor to be examined
+	 * @param new posistion of actor
+	 * @param debug level
 	 * @return whether or not any events were generated
 	 */
-	public boolean processPosition(Actor actor, Coord newPosn) {
+	public boolean processPosition(Actor actor, Coord newPosn, JFrame display, int debug) {
 
 		Rule.EventType event = Rule.EventType.NONE;
 		final float epsilon = 0.05F;	// debounce threshold
@@ -184,7 +188,7 @@ public class Region {
 		Iterator<Rule> it = rules.iterator();
 		while( it.hasNext()) {
 			Rule r = (Rule) it.next();
-			if (r.checkTriggered(actor, event))
+			if (r.checkTriggered(actor, event, display, debug))
 				didSomething = true;
 		}
 

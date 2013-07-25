@@ -96,11 +96,9 @@ public class KinectedSpace {
 	/**
 	 * read a set of region definitions into the space
 	 * 
-	 * @param filename
+	 * @param filename (not relative to prefix)
 	 */
 	public void readRegions( String filename ) {
-		if (prefix != null)
-			filename = prefix + "/" + filename;
 		try {
 			s.readRegions(filename, ignoreY);
 		} catch (Exception e) {
@@ -111,11 +109,9 @@ public class KinectedSpace {
 	/**
 	 * read a set of rule definitions into the space
 	 * 
-	 * @param filename
+	 * @param filename (not relative to prefix)
 	 */
 	public void readRules( String filename ) {
-		if (prefix != null)
-			filename = prefix + "/" + filename;
 		try {
 			s.readRules(filename);
 		} catch (Exception e) {
@@ -130,6 +126,7 @@ public class KinectedSpace {
 	 */
 	public void prefix( String base ) {
 		this.prefix = base;
+		s.prefix( base );
 	}
 	
 	/**

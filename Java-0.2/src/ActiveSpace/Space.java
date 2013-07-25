@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,7 +28,9 @@ public class Space {
 	private String name;			// name of this space
 	private DocumentBuilder db;		// parser instance
 	private List<Region> regions;	// list of registered regions
+	private String fileBase;		// prefix for fetched files
 	private int debugLevel;			// level of desired debug output
+	private JFrame display;			// window for displaying images
 	
 	// these are only used for testing (simulated actor walks)
 	private Coord entryPos;		// where new actors enter the scene
@@ -41,6 +43,8 @@ public class Space {
 		regions = new LinkedList<Region>();
 		debugLevel = 1;			// basic debug info
 		name = null;			// we do not yet have a name
+		fileBase = null;		// we do not yet have a prefix
+		display = null;			// we do not yet have a display frame
 		db = null;				// we have not yet created a parser
 		entryPos = null;		// we don't have any regions yet
 		lastActor = null;		// we haven't tested any actors yet
@@ -64,6 +68,23 @@ public class Space {
 	 */
 	public void name( String newname ) {
 		this.name = newname;
+	}
+	
+	/**
+	 * set the media file location prefix for this space
+	 * @param prefix
+	 */
+	public void prefix( String prefix ) {
+		this.fileBase = prefix;
+	}
+	
+	/**
+	 * set the display window for images in this space
+	 * 
+	 * @param frame
+	 */
+	public void display( JFrame frame ) {
+		display = frame;
 	}
 	
 	/**
@@ -140,7 +161,7 @@ public class Space {
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();
-			changes |= r.processPosition(a, newPosn);
+			changes |= r.processPosition(a, newPosn, display, debugLevel);
 		}
 
 		return changes;
@@ -156,7 +177,10 @@ public class Space {
 	/**
 	 * initialize the region map from an XML description
 	 * 
-	 * @param path	name of description file
+	 * @param path	ABSOLUTE path name of description file
+	 * 		because this is specified as a distinct parameter to the
+	 * 		program, I decided not to make it relative to fildBase
+	 * 
 	 * @param ignoreY whether or not we should ignore Y values
 	 * @return			true if initialization was successful
 	 * @throws ParserConfigurationException 
@@ -237,7 +261,9 @@ public class Space {
 	/**
 	 * initialize the action rules from an XML description
 	 * 
-	 * @param path	name of description file
+	 * @param path	ABSOLUTE path name of description file
+	 * 	 	because this is specified as a distinct parameter to the
+	 * 		program, I decided not to make it relative to fildBase		
 	 * @return			true if initialization was successful
 	 * 
 	 * @throws ParserConfigurationException 
@@ -280,25 +306,46 @@ public class Space {
 				continue;
 			
 			Node x;
+			String value;
 			
 			// TODO (refactor) - parse rule XML descriptions in Rule.java
 
 			// create the RegionEvent callback handler
+			//		note that all media file names are to be interpreted relative
+			//		to a base prefix we got at start up time
 			RegionEvent r = new RegionEvent();
 			for( Node p = n.getFirstChild();
 					p != null;
 					p = p.getNextSibling() ) {
 				if (p.getNodeName().equals("image")) {
 					x = p.getAttributes().getNamedItem("file");
-					r.setImage( (x == null) ? null : x.getNodeValue());
+					if (x != null) {
+						value = x.getNodeValue();
+						if (fileBase != null && !value.equals("cancel"))
+							value = fileBase + "/" + value;
+					} else
+						value = null;
+					r.setImage( value );
 				}
 				if (p.getNodeName().equals("sound")) {
 					x = p.getAttributes().getNamedItem("file");
-					r.setSound( (x == null) ? null : x.getNodeValue());
+					if (x != null) {
+						value = x.getNodeValue();
+						if (fileBase != null && !value.equals("cancel"))
+							value = fileBase + "/" + value;
+					} else
+						value = null;
+					r.setSound( value );
 				}
 				if (p.getNodeName().equals("text")) {
 					x = p.getAttributes().getNamedItem("file");
-					r.setText( (x == null) ? null : x.getNodeValue());
+					if (x != null) {
+						value = x.getNodeValue();
+						if (fileBase != null && !value.equals("cancel"))
+							value = fileBase + "/" + value;
+					} else
+						value = null;
+					r.setText( value );
 				}
 			}
 

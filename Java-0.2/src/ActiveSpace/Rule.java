@@ -1,5 +1,7 @@
 package ActiveSpace;
 
+import javax.swing.JFrame;
+
 /**
  * a Rule is a set of trigger conditions and an associated set of actions
  * 
@@ -90,9 +92,10 @@ public class Rule {
 	 *
 	 * @param actor	actor who triggered eent
 	 * @param event	type of event
+	 * @param debug level
 	 * @return		whether or not the event was triggered
 	 */
-	public boolean checkTriggered( Actor actor, EventType event ) {
+	public boolean checkTriggered( Actor actor, EventType event, JFrame display, int debug ) {
 		// see if the triggering conditions have been met
 		if (event != eventType)
 			return false;
@@ -101,7 +104,7 @@ public class Rule {
 		
 		// call the event callback handler
 		System.out.println("Actor " + actor + " triggered rule '" + name + "'");
-		action.callback(region, actor, event);
+		action.callback(region, actor, event, display, debug);
 		if (nextState >= 0)
 			region.setState(nextState);
 		

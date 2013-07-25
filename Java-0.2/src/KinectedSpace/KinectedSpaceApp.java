@@ -23,9 +23,10 @@ public class KinectedSpaceApp {
 		"        --debug=#"
 	};
 	
-	private static String REGIONFILE = "Regions.xml";
-	private static String RULEFILE = "Rules.xml";
-	private static String PREFIX = "bin";
+	private static final String REGIONFILE = "bin/Regions.xml";
+	private static final String RULEFILE = "bin/Rules.xml";
+	private static final String PREFIX = "bin";
+	private static final int MS_PER_STEP = 10;		// test movement rate
 	
 	public static void main(String args[]) {
 	
@@ -71,7 +72,13 @@ public class KinectedSpaceApp {
 		// instantiate a KinectedSpace
 		KinectedSpaceApp app = new KinectedSpaceApp(regionFile, ruleFile, prefix, debug);
 		if (testPasses > 0) {
-			while( app.room.test(testPasses) );
+			while( app.room.test(testPasses) ) {
+				try {
+					Thread.sleep(MS_PER_STEP);
+				} catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+				}
+			}
 			System.exit(0);
 		} else {
 			app.sense = new UserSensor();

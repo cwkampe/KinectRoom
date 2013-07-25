@@ -18,6 +18,7 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 
 	private static final String REGIONFILE = "Regions.xml";
 	private static final String RULEFILE = "Rules.xml";
+	private static final int MS_PER_STEP = 10;		// test execution speed
 	
 	/**
 	 * initialization method ... called at startup
@@ -51,7 +52,13 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 	 */
 	public void start() {
 		if (testPasses > 0) {
-			while( room.test(testPasses) );
+			while( room.test(testPasses) ) {
+				try {
+					Thread.sleep(MS_PER_STEP);
+				} catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+				}
+			}
 		} else {
 			sense = new UserSensor();
 			sense.debug(debugLevel);
