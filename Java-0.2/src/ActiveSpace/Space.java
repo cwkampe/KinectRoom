@@ -1,6 +1,5 @@
 package ActiveSpace;
 
-import java.awt.Container;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.net.URI;
@@ -30,7 +29,7 @@ public class Space {
 	private List<Region> regions;	// list of registered regions
 	private String fileBase;		// prefix for fetched files
 	private int debugLevel;			// level of desired debug output
-	private Container display;			// window for displaying images
+	private MediaActions media;		// object for multi-media actions
 	
 	// these are only used for testing (simulated actor walks)
 	private Coord entryPos;		// where new actors enter the scene
@@ -44,7 +43,7 @@ public class Space {
 		debugLevel = 1;			// basic debug info
 		name = null;			// we do not yet have a name
 		fileBase = null;		// we do not yet have a prefix
-		display = null;			// we do not yet have a display frame
+		media = null;			// we do not yet have a media player
 		db = null;				// we have not yet created a parser
 		entryPos = null;		// we don't have any regions yet
 		lastActor = null;		// we haven't tested any actors yet
@@ -83,8 +82,8 @@ public class Space {
 	 * 
 	 * @param container
 	 */
-	public void display( Container container ) {
-		display = container;
+	public void media( MediaActions mediaPlayer ) {
+		media = mediaPlayer;
 	}
 	
 	/**
@@ -161,7 +160,7 @@ public class Space {
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();
-			changes |= r.processPosition(a, newPosn, display, debugLevel);
+			changes |= r.processPosition(a, newPosn, media);
 		}
 
 		return changes;

@@ -1,6 +1,5 @@
 package ActiveSpace;
 
-import java.awt.Container;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -140,7 +139,7 @@ public class Region {
 	 * @param debug level
 	 * @return whether or not any events were generated
 	 */
-	public boolean processPosition(Actor actor, Coord newPosn, Container display, int debug) {
+	public boolean processPosition(Actor actor, Coord newPosn, MediaActions m) {
 
 		Rule.EventType event = Rule.EventType.NONE;
 		final float epsilon = 0.05F;	// debounce threshold
@@ -187,7 +186,7 @@ public class Region {
 		Iterator<Rule> it = rules.iterator();
 		while( it.hasNext()) {
 			Rule r = (Rule) it.next();
-			if (r.checkTriggered(actor, event, display, debug))
+			if (r.checkTriggered(actor, event, m))
 				didSomething = true;
 		}
 

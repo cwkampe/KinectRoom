@@ -38,9 +38,9 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		if (ruleFile == null) 
 			ruleFile = RULEFILE;
 		String prefix = getParameter("base");
-		String s = getParameter("height");
+		String s = getParameter("height");	// FIXME - collides w/applet height
 		int height = (s == null) ? HEIGHT : Integer.parseInt(s);
-		s = getParameter("width");
+		s = getParameter("width");			// FIXME - collides w/applet width
 		int width = (s == null) ? WIDTH : Integer.parseInt(s);
 		s = getParameter("test");
 		testPasses = (s == null) ? 0 : Integer.parseInt(s);

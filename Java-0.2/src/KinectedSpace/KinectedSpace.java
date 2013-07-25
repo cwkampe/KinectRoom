@@ -5,16 +5,28 @@ package KinectedSpace;
  * 	  a space, monitored by a single kinect
  *    with a set of defined regions
  *    a set of rules defining region entry/exit events
+ *    a multi-media player capable of rendering sounds and images
  */
 
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JWindow;
 
 import ActiveSpace.Actor;
 import ActiveSpace.Coord;
+import ActiveSpace.MediaActions;
 import ActiveSpace.Space;
 
-public class KinectedSpace {
+public class KinectedSpace extends JWindow implements MediaActions {
 	public boolean finished;	// we have been told to shut down
 	
 	private Space s;			// space in which we are running
@@ -22,6 +34,10 @@ public class KinectedSpace {
 	private int updates[];		// and their last update generations
 	private int maxActors;		// upper limit on concurrent actors
 	private int generation;		// monotonically increasing move generation
+	
+	private Dimension size;		// specified window size
+	private Image image;		// active display image
+	private Clip clip;			// active audio clip
 	
 	private String prefix;		// base prefix for files
 	private	int debugLevel;		// how noisy we want to be
@@ -32,20 +48,22 @@ public class KinectedSpace {
 	private static final int MAX_ACTORS = 10;	// maximum concurrent actors
 	
 	public KinectedSpace( Dimension d ) {
+		size = d;				// note our window size
 		finished = false;		// we're running
 		ignoreY = true;			// treat space as two dimensional
 		maxActors = MAX_ACTORS;	// limited number of concurrent actors
 		testsRun = 0;			// we haven't run any tests yet
 		prefix = null;			// we have no base prefix
+		clip = null;			// we are not playing any sounds
+		image = null;			// we are not displaying any images
 		
 		s = new Space();
 		
-		// create a display window for images
-		JWindow f = new JWindow();
-		f.setPreferredSize( d );
-		f.pack();
-		f.setVisible(true);
-		s.display(f);
+		// create a display window and register us as the multi-media player
+		this.setPreferredSize( size );
+		this.pack();
+		this.setVisible(true);
+		s.media(this);
 		
 		actors = new Actor[maxActors];
 		updates = new int[maxActors];
@@ -210,5 +228,81 @@ public class KinectedSpace {
 
 		s.processPosition(a, pos);		// process the new position
 		a.lastPosition(pos);			// update the known position
+	}
+
+	public void displayImage(String filename) {
+		if (debugLevel > 1)
+			System.out.println("   ... display image file: " + filename);
+		File file = new File(filename);
+		try {
+			image = ImageIO.read(file);
+		} catch (Exception e) {
+			System.out.println("Error reading image file: " + filename);
+			e.printStackTrace();
+			image = null;
+		}
+		
+		repaint();
+	}
+
+	public void blankImage() {
+		if (debugLevel > 1)
+			System.out.println("   ... clear displayed image");
+		image = new BufferedImage((int) size.width, (int) size.height, BufferedImage.TYPE_BYTE_BINARY);
+		repaint();
+	}
+	
+	/**
+	 * repaint our window with thye selected image
+	 */
+	public void paint( Graphics g ) {
+		g.drawImage(image, 0, 0, (int) size.getWidth(), (int) size.getHeight(), this);
+	}
+
+	/**
+	 * play the sound in the specified file
+	 * @param filename
+	 */
+	public void playSound(String filename) {
+		if (debugLevel > 1)
+			System.out.println("   ... play audio file: " + filename);
+		try {
+			File file = new File(filename);
+			AudioInputStream in = AudioSystem.getAudioInputStream(file);
+			clip = AudioSystem.getClip();
+			clip.open(in);
+			clip.start();
+		} catch (Exception e) {
+			
+		}
+	}
+
+	/**
+	 * silence any playing sound
+	 */
+	public void silence() {
+		if (debugLevel > 1)
+			System.out.println("   ... silence");
+		if (clip != null && clip.isRunning()) {
+			clip.stop();
+			clip = null;
+		}
+	}
+
+	/**
+	 * display the text in the specified file
+	 * @param filename
+	 */
+	public void displayText(String filename) {
+		System.out.println("UNIMPLEMENTED: display text from file " + filename);
+		// TODO implement text display
+	}
+
+	/**
+	 * clear the displayed text
+	 */
+	public void clearText() {
+		System.out.println("UNIMPLEMENTED: clear displayed text");
+		// TODO implement text clearing
 	}
 }
