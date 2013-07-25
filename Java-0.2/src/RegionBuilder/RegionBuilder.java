@@ -46,6 +46,7 @@ public class RegionBuilder {
 		// instantiate an app and GUI and kick off the main loop
 		RegionBuilder app = new RegionBuilder();
 		app.view = new KinectViewer();
+		app.view.debug(debugLevel);
 		app.gui = new MainScreen( regionFile, debugLevel );
 		app.run();
 	}

@@ -13,9 +13,9 @@ import java.nio.ShortBuffer;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import org.OpenNI.License;
 import org.OpenNI.OutArg;
 import org.OpenNI.Point3D;
-import org.OpenNI.ScriptNode;
 import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
 import org.OpenNI.DepthMetaData;
@@ -30,7 +30,6 @@ public class KinectViewer extends Component
 	private Coord lastClick;				// real world coordinates
 	private int cursorX, cursorY;			// screen coordinates of cursor
 	
-	private OutArg<ScriptNode> scriptNode;	// sensor configuration
     private Context context;				// session
     private DepthGenerator depthGen;		// depth generator
     private int width, height;				// sensor resolution
@@ -39,20 +38,23 @@ public class KinectViewer extends Component
     private BufferedImage bimg;				// constructed display image
     private float histogram[];				// brightness correction map
     
+    private int debugLevel;					// how much debug output we want
+    
     private static final int MAX_Z = 10000;	// maximum distance to consider
     private static final int C_HEIGHT = 10;	// cursor height
     private static final int C_WIDTH  = 10;	// cursor width
-    
-    // configuration file is packaged with the application
-    private final String SAMPLE_XML_FILE = "bin/SamplesConfig.xml";
     
 	private static final long serialVersionUID = 1L;
     
     public KinectViewer()
     {
-        try {	// establish a session with the kinect depth sensor
-            scriptNode = new OutArg<ScriptNode>();
-            context = Context.createFromXmlFile(SAMPLE_XML_FILE, scriptNode);
+        try {
+        	// create a context (hard-coded to eliminate dependence on cfg file)
+        	context = new Context();
+        	License license = new License("PrimeSense", "0KOIk2JeIBYClPWVnMoRKn5cdY4=");
+        	context.addLicense(license);
+        	
+        	// create and start a depth generator
             depthGen = DepthGenerator.create(context);
             DepthMetaData depthMD = depthGen.getMetaData();
 			context.startGeneratingAll();
@@ -122,7 +124,11 @@ public class KinectViewer extends Component
                 	Point3D w = depthGen.convertProjectiveToRealWorld(p);
                 	lastClick = new Coord(w.getX(), w.getY(), w.getZ());
                 	click_pos = -1;
-                	System.out.println("place cursor at <" + cursorX + "," + cursorY + ">");
+                	
+                	if (debugLevel > 0) {
+                		System.out.println("Set cursor <" + cursorX + "," + cursorY + 
+                				"> = " + lastClick);
+                	}
                 }
             }
         } catch (GeneralException e) {
@@ -215,6 +221,10 @@ public class KinectViewer extends Component
 		int x = e.getX();
 		int y = e.getY();
 		click_pos = x + (width * y);
+	}
+	
+	public void debug( int level ) {
+		debugLevel = level;
 	}
 	
 	// all the listener events we ignore
