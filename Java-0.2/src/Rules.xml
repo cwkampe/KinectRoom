@@ -1,6 +1,6 @@
 <rules>
     <rule name="enter A" region="A" event="ENTRY">
-        <image file="sampleImage" />
+        <image file="sampleImage.jpg" />
     </rule>
     <rule name="exit A" region="A" event="EXIT">
         <image file="cancel" />
@@ -14,7 +14,7 @@
     <rule name="enter B 2p" region="B" event="ENTRY" state="1" next="2">
     </rule>
     <rule name="enter B 1p" region="B" event="ENTRY" state="0" next="1">
-        <sound file="sampleSound" />
+        <sound file="shortsample.wav" />
     </rule>
     <rule name="exit B was 0" region="B" event="EXIT" state="0">
     </rule>
