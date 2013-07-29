@@ -199,14 +199,13 @@ public class Space {
 			db = dbf.newDocumentBuilder();
 		}
 		URI uri = new URI(path);
-		
 		Document doc;
 		try {
 			doc = db.parse(uri.toString());
 		} catch (SAXException e) {
 			throw new IOException("XML parse error in " + path, e);
 		} catch (IOException e) {
-			throw new IOException("Unable to read " + path, e);
+			throw new IOException("Unable to open/read " + path, e);
 		}
 		
 		// make sure it contains region descriptions
@@ -288,7 +287,7 @@ public class Space {
 		} catch (SAXException e) {
 			throw new IOException("XML parse error in " + path, e);
 		} catch (IOException e) {
-			throw new IOException("Unable to read " + path, e);
+			throw new IOException("Unable to open/read " + path, e);
 		}
 
 		// make sure it contains rules

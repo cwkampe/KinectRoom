@@ -208,7 +208,9 @@ public class MainScreen extends JFrame
 			chooser.setFileFilter(xmlFilter);
 			int retval = chooser.showOpenDialog(this);
 			if (retval == JFileChooser.APPROVE_OPTION) {
-				loadRegions(chooser.getSelectedFile().getAbsolutePath());
+				String filename = chooser.getSelectedFile().getAbsolutePath();
+				String correctedName = canonize(filename);
+				loadRegions(correctedName);
 			} 
 			return;
 		}
@@ -390,6 +392,24 @@ public class MainScreen extends JFrame
 		return value;
 	}
 
-
+	/**
+	 * KLUGE - The file name selection dialogs return local
+	 * 		file names, but the region/rule readers need URI's,
+	 * 		and Window's file names don't qualify.  A little 
+	 * 		research failed to turn up a portable converter,
+	 * 		so I am (for now) kluging my own.
+	 * 
+	 * @param original	local file name
+	 * @return	new form, suitable for use as a URI
+	 */
+	static String canonize(String original) {
+		
+		// replace any back-slashes with slashes
+		String fixed = original.replaceAll("\\\\", "/");
+		
+		System.out.println("canonize(" + original + ") = " + fixed);
+		
+		return( fixed );
+	}
 
 }
