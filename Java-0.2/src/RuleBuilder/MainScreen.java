@@ -557,12 +557,13 @@ public class MainScreen extends JFrame
 	 * @param original	local file name
 	 * @return	new form, suitable for use as a URI
 	 */
-	static String canonize(String original) {
+	String canonize(String original) {
 		
 		// replace any back-slashes with slashes
 		String fixed = original.replaceAll("\\\\", "/");
 		
-		System.out.println("canonize(" + original + ") = " + fixed);
+		if (!original.equals(fixed) && debugLevel > 1)
+			System.out.println("canonize(" + original + ") = " + fixed);
 		
 		return( fixed );
 	}
