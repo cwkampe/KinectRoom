@@ -11,6 +11,10 @@ package KinectedSpace;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +30,8 @@ import ActiveSpace.Coord;
 import ActiveSpace.MediaActions;
 import ActiveSpace.Space;
 
-public class KinectedSpace extends JWindow implements MediaActions {
+public class KinectedSpace extends JWindow 
+	implements MediaActions, WindowListener, MouseListener {
 	public boolean finished;	// we have been told to shut down
 	
 	private Space s;			// space in which we are running
@@ -59,11 +64,20 @@ public class KinectedSpace extends JWindow implements MediaActions {
 		
 		s = new Space();
 		
-		// create a display window and register us as the multi-media player
+		// create a display window
 		this.setPreferredSize( size );
 		this.pack();
 		this.setVisible(true);
+		blankImage();
+		
+		// register ourselves as the multi-media player
 		s.media(this);
+		
+		// capture window events
+		addWindowListener(this);
+		
+		// capture mouse events
+		addMouseListener(this);
 		
 		actors = new Actor[maxActors];
 		updates = new int[maxActors];
@@ -305,4 +319,40 @@ public class KinectedSpace extends JWindow implements MediaActions {
 		System.out.println("UNIMPLEMENTED: clear displayed text");
 		// TODO implement text clearing
 	}
+	
+	// repaint the window when ever it reappears
+	public void windowOpened(WindowEvent arg0) {
+		if (debugLevel > 1)
+			System.out.println("Image window opened");
+		repaint();
+	}
+	
+	public void windowActivated(WindowEvent arg0) {
+		if (debugLevel > 1)
+			System.out.println("Image window activated");
+		repaint();
+	}
+	
+	public void windowDeiconified(WindowEvent arg0) {
+		if (debugLevel > 1)
+			System.out.println("Image window de-iconified");
+		repaint();
+	}
+
+	public void windowClosed(WindowEvent arg0) {}
+	public void windowClosing(WindowEvent arg0) {}
+	public void windowDeactivated(WindowEvent arg0) {}
+	public void windowIconified(WindowEvent arg0) {}
+
+
+	// mouse click in the window means shutdown
+	public void mouseClicked(MouseEvent arg0) {
+		if (debugLevel > 0)
+			System.out.println("Mouse Click in display window ... shutting down");
+		finished = true;
+	}
+	public void mouseEntered(MouseEvent arg0) {}
+	public void mouseExited(MouseEvent arg0) {}
+	public void mousePressed(MouseEvent arg0) {}
+	public void mouseReleased(MouseEvent arg0) {}
 }
