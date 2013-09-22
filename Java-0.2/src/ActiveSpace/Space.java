@@ -31,8 +31,12 @@ public class Space {
 	private int debugLevel;			// level of desired debug output
 	private MediaActions media;		// object for multi-media actions
 	
+	// FIXME entry points for startup and user entry/exit rule invocation
+	// FIXME how to store rules on region=NONE/none or no region
+	
 	// these are only used for testing (simulated actor walks)
 	private Coord entryPos;		// where new actors enter the scene
+	private Coord exitPos;		// where actors exit the scene
 	private Actor lastActor;	// last actor we were testing
 	private int lastRegion;		// number of regions completed for this actor
 	private final float step = 10.0F;	// test-walk step size (in mm)
@@ -46,8 +50,13 @@ public class Space {
 		media = null;			// we do not yet have a media player
 		db = null;				// we have not yet created a parser
 		entryPos = null;		// we don't have any regions yet
+		exitPos = null;			// we don't have any regions yet
 		lastActor = null;		// we haven't tested any actors yet
 		lastRegion = 0;			// there are no walks in progress
+		
+		// every space contains the NONE region
+		Region r = new Region("NONE", null, 0);
+		addRegion(r);
 	}
 
 	public void debug(int level) {		// control the level of diagnostics
@@ -93,10 +102,6 @@ public class Space {
 	 */
 	public void addRegion(Region r) {
 		regions.add(r);
-		
-		// for test purposes, use first region as entry point;
-		if (entryPos == null)
-			entryPos = r.getCenter();
 	}
 
 	/**
@@ -160,7 +165,8 @@ public class Space {
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();
-			changes |= r.processPosition(a, newPosn, media);
+			if (!r.getName().equals("NONE"))
+				changes |= r.processPosition(a, newPosn, media);
 		}
 
 		return changes;
@@ -229,7 +235,7 @@ public class Space {
 			if (!n.getNodeName().equals("region"))
 				continue;
 			
-			// TODO (refactor) - parse region XML descriptions in Region.java
+			// CLEANUP - parse region XML descriptions in Region.java
 
 			String name = n.getAttributes().getNamedItem("name").getNodeValue();
 			float radius = Float.parseFloat(n.getAttributes().getNamedItem("radius").getNodeValue());
@@ -255,6 +261,7 @@ public class Space {
 		}
 
 	}
+	
 
 	/**
 	 * initialize the action rules from an XML description
@@ -306,7 +313,8 @@ public class Space {
 			Node x;
 			String value;
 			
-			// TODO (refactor) - parse rule XML descriptions in Rule.java
+			// FIXME add support for reading rules on region="NONE/none" or no region
+			// CLEANUP - parse rule XML descriptions in Rule.java
 
 			// create the RegionEvent callback handler
 			//		note that all media file names are to be interpreted relative
@@ -378,7 +386,7 @@ public class Space {
 	 * @return	String containing the saved regions
 	 */
 	public String regionsToXML() {
-		
+		// FIXME add support for writing rules on region=NONE/none or no region
 		String out = "<regions";
 		// not all regions have names
 		if (name != null && !name.equals(""))
@@ -426,6 +434,9 @@ public class Space {
 		return out;
 	}
 
+
+	// FIXME - make sure actor creation/destruction works too
+	
 	/**
 	 * test entry-point to automatically walk a space
 	 * 
@@ -440,22 +451,69 @@ public class Space {
 	 */
 	public boolean test(Actor a) {
 
-		// if we are starting a new actor, put him at the first region
+		// figure out where tests should start and end
+		if (entryPos == null || exitPos == null) {
+			float farLeft = -1;
+			float farRight = 1;
+			float firstX = 0;
+			float lastX = 0;
+
+			// run through all the regions noting left/right expanse
+			for( int i = 1; i < this.numRegions(); i++) {
+				Region r = this.getRegion(i);
+				if (r == null)
+					break;
+				float x = r.getCenter().x;
+				if (x - r.getRadius() < farLeft)
+					farLeft = x - r.getRadius();
+				if (x + r.getRadius() > farRight)
+					farRight = x + r.getRadius();
+				if (firstX == 0 && x != 0)
+					firstX = x;
+				else if (lastX == 0 && x != 0)
+					lastX = x;
+			}
+			
+			// assign entry and exit positions to be outside of this range
+			float border = 100;		// how far outside the range
+			if (firstX > lastX) {
+				entryPos = new Coord(farRight + border, 0, 0);
+				exitPos = new Coord(farLeft - border, 0, 0);
+			} else {
+				exitPos = new Coord(farRight + border, 0, 0);
+				entryPos = new Coord(farLeft - border, 0, 0);
+			}
+		}
+		
+		Coord posn;			// actor's current position
+		Coord goal;			// actor's next goal
+		String goal_name;	// name of that goal
+		
+		// if we are starting a new actor, put him at the entry point
 		if (a != lastActor) {
+			posn = entryPos;
+			goal = entryPos;
+			goal_name = "ENTRANCE";
 			a.lastPosition(entryPos);
-			lastRegion = 0;
 			lastActor = a;
+			lastRegion = 0;		
+		} else if (lastRegion < numRegions()) {
+			posn = a.lastPosition();
+			Region r = getRegion(lastRegion);
+			goal = r.getCenter();
+			goal_name = r.getName();
+		} else {
+			posn = a.lastPosition();
+			goal = exitPos;
+			goal_name = "EXIT";
 		}
 
-		// see if this actor has reached his latest goal
-		Coord posn = a.lastPosition();
-		Region r = getRegion(lastRegion);
-		Coord goal = r.getCenter();
+		// has this actor yet reached that goal
 		if (goal.dist(posn) < 1.0F) {			// we've reached our goal
 			if (debugLevel > 1)
-				System.out.println("   ... Actor " + a + " at " + r.getName());
+				System.out.println("   ... Actor " + a + " at " + goal_name);
 			lastRegion++;
-			if (lastRegion >= numRegions()) {	// we've finished this walk
+			if (lastRegion > numRegions()) {	// we've finished this walk
 				if (debugLevel > 1)
 					System.out.println("   ... Actor " + a + " visited all " + lastRegion + " regions");
 				lastActor = null;
