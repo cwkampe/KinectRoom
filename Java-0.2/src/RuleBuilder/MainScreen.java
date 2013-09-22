@@ -172,6 +172,8 @@ public class MainScreen extends JFrame
 		l = new JLabel("Region");
 		p.add(l);
 		regionSelector = new JComboBox<String>();
+		regionSelector.addItem("NONE");
+		regionSelector.setSelectedIndex(0);
 		regionSelector.addActionListener(this);
 		p.add(regionSelector);
 		h.add(p);
@@ -182,7 +184,7 @@ public class MainScreen extends JFrame
 		p.setBorder(BorderFactory.createEmptyBorder(B,B,B,B));
 		l = new JLabel("Event");
 		p.add(l);
-		String eventChoices[] = { "ENTRY", "EXIT" };
+		String eventChoices[] = { "ENTRY", "EXIT", "STARTUP" };
 		eventSelector = new JComboBox<String>(eventChoices);
 		eventSelector.setSelectedIndex(0);
 		eventSelector.addActionListener(this);
@@ -346,6 +348,16 @@ public class MainScreen extends JFrame
 		if (o == regionSelector || o == eventSelector) {
 			String r = (String) regionSelector.getSelectedItem();
 			String t = (String) eventSelector.getSelectedItem();
+			if (r == null || t == null)
+				return;		// ignore non-selection events
+			
+			// STARTUP events only apply to region NONE
+			if (t.equals("STARTUP") && !r.equals("NONE")) {
+				eventSelector.setSelectedIndex(0);
+				t = (String) eventSelector.getSelectedItem();
+			}
+			
+			// form the name of the selected event
 			eventName.setText(r + " " + t);
 			return;
 		}
@@ -428,21 +440,24 @@ public class MainScreen extends JFrame
 	 * @param filename
 	 */
 	private void loadRegions( String filename ) {
+		
+		// empty the selected region list
+		regionSelector.removeAllItems();
+		regionSelector.addItem("NONE");
+		regionSelector.setSelectedIndex(0);
+		
 		try {
 			// load in the regions file
 			space.readRegions(filename);
 			
 			// and then update the regions selector widget to know about them
-			regionSelector.removeAllItems();
 			int n = space.numRegions();
 			for( int i = 0; i < n; i++ )
 				regionSelector.addItem(space.getRegion(i).getName());
-			if (n > 0)
-				regionSelector.setSelectedIndex(0);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog( mainPane, 
 					e.getMessage(),
-					"ERROR LOADING REGION DEFINITIONS",
+					"ERROR LOADING REGION FILE",
 					JOptionPane.ERROR_MESSAGE);
 			// e.printStackTrace();
 		}
