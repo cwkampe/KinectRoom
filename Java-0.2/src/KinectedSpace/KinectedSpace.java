@@ -107,6 +107,8 @@ public class KinectedSpace extends JWindow
 			}
 		}
 		
+		// FIXME - need to detect actor disappearance
+		
 		/*
 		 * Garbage collection
 		 * 		To avoid creating a watcher-style path for 
@@ -129,6 +131,7 @@ public class KinectedSpace extends JWindow
 			if (actors[i] == null) {
 				actors[i] = new Actor(name, null);
 				updates[i] = 0;
+				s.addActor(actors[i]);
 				return( actors[i] );
 			}
 		

@@ -92,7 +92,6 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		while(running && !room.finished) {
 			sense.update();
 			int n = sense.numUsers();
-			// FIXME trigger elvis has entered/left the building events
 			for(int i = 0; i < n; i++)
 				room.update(sense.actor(i), sense.getCoM(i));
 		}
