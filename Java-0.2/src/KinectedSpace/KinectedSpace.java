@@ -214,6 +214,13 @@ public class KinectedSpace extends JWindow
 	}
 
 	/**
+	 * called before any positions are reported
+	 */
+	public void start() {
+		s.processPosition(null, null);
+	}
+	
+	/**
 	 * regularly called update method
 	 * 
 	 * @param	actor number (monotonically increasing)

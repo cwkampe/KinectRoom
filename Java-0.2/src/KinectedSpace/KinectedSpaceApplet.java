@@ -24,6 +24,8 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 	private static final int HEIGHT = 768;
 	private static final int WIDTH = 1024;
 	
+	// TODO - can I use the applet window for my image displays?
+	
 	/**
 	 * initialization method ... called at startup
 	 * 	process parameters
@@ -38,9 +40,9 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		if (ruleFile == null) 
 			ruleFile = RULEFILE;
 		String prefix = getParameter("base");
-		String s = getParameter("height");	// FIXME - collides w/applet height
+		String s = getParameter("height");	// TODO - collides w/applet height
 		int height = (s == null) ? HEIGHT : Integer.parseInt(s);
-		s = getParameter("width");			// FIXME - collides w/applet width
+		s = getParameter("width");			// TODO - collides w/applet width
 		int width = (s == null) ? WIDTH : Integer.parseInt(s);
 		s = getParameter("test");
 		testPasses = (s == null) ? 0 : Integer.parseInt(s);
@@ -71,6 +73,9 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		} else {
 			sense = new UserSensor();
 			sense.debug(debugLevel);
+			
+			room.start();
+			
 			Thread updater = new Thread(this);
 			running = true;
 			updater.start();
@@ -87,6 +92,7 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 		while(running && !room.finished) {
 			sense.update();
 			int n = sense.numUsers();
+			// FIXME trigger elvis has entered/left the building events
 			for(int i = 0; i < n; i++)
 				room.update(sense.actor(i), sense.getCoM(i));
 		}
