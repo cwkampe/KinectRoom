@@ -9,7 +9,7 @@ public class Rule {
 	
 	//* the known types of triggering events
 	public enum EventType {
-		NONE, ENTRY, EXIT
+		NONE, ENTRY, EXIT, STARTUP
 	};
 	
 	//* convert string representations into EventType enum values
@@ -18,6 +18,8 @@ public class Rule {
 			return EventType.ENTRY;
 		if (s.equals("EXIT") || s.equals("exit"))
 			return EventType.EXIT;
+		if (s.equals("STARTUP") || s.equals("startup"))
+			return EventType.STARTUP;
 		return EventType.NONE;
 	}
 	
@@ -50,7 +52,8 @@ public class Rule {
 		this.action = callback;
 		
 		// and associate it with the region
-		region.addRule(this);
+		if (region != null)
+			region.addRule(this);
 	}
 	
 	private static final String ruleFormat = "%-20s\t%-10s\t%-10s\t%2d->%2d\t%s\n";
@@ -58,8 +61,9 @@ public class Rule {
 	 * @return	String containing one line description of this rule
 	 */
 	public String toString() {
+		String rname = (region == null) ? "NONE" : region.getName();
 		String out = String.format(ruleFormat,
-				name, region.getName(), eventType, initState, nextState, action );
+				name, rname, eventType, initState, nextState, action );
 		return out;
 	}
 	
@@ -71,7 +75,8 @@ public class Rule {
 	public String toXML() {
 		String out = "    <rule";
 		out += " name=\"" + this.name + "\"";
-		out += " region=\"" + this.region.getName() + "\"";
+		String rname = (this.region == null) ? "NONE" : this.region.getName();
+		out += " region=\"" + rname + "\"";
 		out += " event=\"" + this.eventType + "\"";
 		if (initState >= 0)
 			out += " state=\"" + initState + "\"";
@@ -88,7 +93,7 @@ public class Rule {
 	 * check whether or not this rule has been triggered, and if
 	 * so perform the appropriate actions
 	 *
-	 * @param actor	actor who triggered eent
+	 * @param actor	actor who triggered event
 	 * @param event	type of event
 	 * @param debug level
 	 * @return		whether or not the event was triggered

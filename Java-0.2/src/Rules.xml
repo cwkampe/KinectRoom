@@ -1,4 +1,13 @@
 <rules>
+	<rule name="startup" region="NONE" event="STARTUP">
+		<image file="sampleImage.jpg" />
+	</rule>
+	<rule name="new player" region="NONE" event="ENTRY">
+		<text file="hello.txt" />
+	</rule>
+	<rule name="lose player" region="NONE" event="EXIT">
+		<text file="goodbye.txt" />
+	</rule>
     <rule name="enter A" region="A" event="ENTRY">
         <image file="sampleImage.jpg" />
     </rule>

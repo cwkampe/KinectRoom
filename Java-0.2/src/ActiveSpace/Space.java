@@ -30,9 +30,10 @@ public class Space {
 	private String fileBase;		// prefix for fetched files
 	private int debugLevel;			// level of desired debug output
 	private MediaActions media;		// object for multi-media actions
-	
-	// FIXME entry points for startup and user entry/exit rule invocation
-	// FIXME how to store rules on region=NONE/none or no region
+	private Boolean started;		// has the startup rule been invoked?
+	private Rule onStartup;			// rule for space startup
+	private Rule actorEntry;		// rule for new actor entry
+	private Rule actorExit;			// rule for actor exit
 	
 	// these are only used for testing (simulated actor walks)
 	private Coord entryPos;		// where new actors enter the scene
@@ -51,12 +52,12 @@ public class Space {
 		db = null;				// we have not yet created a parser
 		entryPos = null;		// we don't have any regions yet
 		exitPos = null;			// we don't have any regions yet
+		onStartup = null;		// no startup rule yet
+		actorEntry = null;		// no actor entry rule yet
+		actorExit = null;		// no actor exit rule yet
 		lastActor = null;		// we haven't tested any actors yet
 		lastRegion = 0;			// there are no walks in progress
-		
-		// every space contains the NONE region
-		Region r = new Region("NONE", null, 0);
-		addRegion(r);
+		started = false;		// we have not triggered the start-up rule
 	}
 
 	public void debug(int level) {		// control the level of diagnostics
@@ -150,6 +151,31 @@ public class Space {
 	}
 
 	/**
+	 * add a new actor to the space
+	 * 
+	 * @param a	the new actor
+	 */
+	public void addActor(Actor a) {
+		if (!started) {
+			if (onStartup != null)
+				onStartup.checkTriggered(null, Rule.EventType.STARTUP, media);
+			started = true;
+		}
+		if (actorEntry != null)
+			actorEntry.checkTriggered(a,  Rule.EventType.ENTRY,  media);
+	}
+	
+	/**
+	 * remove an actor from the space
+	 * 
+	 * @param a	the new actor
+	 */
+	public void dropActor(Actor a) {
+		if (actorExit != null)
+			actorExit.checkTriggered(a,  Rule.EventType.EXIT,  media);
+	}
+	
+	/**
 	 * check an actor's updated position against all regions and trigger
 	 * any appropriate actions
 	 * 
@@ -159,14 +185,23 @@ public class Space {
 	 */
 	public boolean processPosition(Actor a, Coord newPosn) {
 
-		boolean changes = false;
+		// see if we have processed the start-up rule yet
+		if (!started) {
+			if (onStartup != null)
+				onStartup.checkTriggered(null, Rule.EventType.STARTUP, media);
+			started = true;
+		}
+		
+		// if this was just a start-up event, no other rules will trigger
+		if (a == null || newPosn == null)
+			return false;
 
 		// check each region if this triggers entry/exit rules
+		boolean changes = false;
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();
-			if (!r.getName().equals("NONE"))
-				changes |= r.processPosition(a, newPosn, media);
+			changes |= r.processPosition(a, newPosn, media);
 		}
 
 		return changes;
@@ -313,7 +348,6 @@ public class Space {
 			Node x;
 			String value;
 			
-			// FIXME add support for reading rules on region="NONE/none" or no region
 			// CLEANUP - parse rule XML descriptions in Rule.java
 
 			// create the RegionEvent callback handler
@@ -357,20 +391,27 @@ public class Space {
 
 			// gather the rule attributes and create the rule
 			String ruleName = n.getAttributes().getNamedItem("name").getNodeValue();
-			String s = n.getAttributes().getNamedItem("region").getNodeValue();
-			Region region = getRegion(s);
-			s = n.getAttributes().getNamedItem("event").getNodeValue();
+			String s = n.getAttributes().getNamedItem("event").getNodeValue();
 			Rule.EventType etype = Rule.eventType(s);
 			x = n.getAttributes().getNamedItem("state");
 			int iState = (x == null) ? -1 : Integer.parseInt(x.getNodeValue());
 			x = n.getAttributes().getNamedItem("next");			
 			int nState = (x == null) ? -1 : Integer.parseInt(x.getNodeValue());
-
-			new Rule(ruleName, region, etype, iState, nState, r);
+			s = n.getAttributes().getNamedItem("region").getNodeValue();
+			if (!s.equals("NONE")) {
+				Region region = getRegion(s);
+				new Rule(ruleName, region, etype, iState, nState, r);
+			} else if (etype == Rule.EventType.ENTRY) {
+				actorEntry = new Rule(ruleName, null, etype, -1, -1, r);
+			} else if (etype == Rule.EventType.EXIT) {
+				actorExit = new Rule(ruleName, null, etype, -1, -1, r);
+			} else if (etype == Rule.EventType.STARTUP) {
+				onStartup = new Rule(ruleName, null, etype, -1, -1, r);
+			}
 
 			if (debugLevel > 1) {
 				String descr = "    Rule:";
-				descr += " region=" + region.getName();
+				descr += " region=" + s;
 				descr += " " + etype;
 				descr += ", name=" + ruleName;
 				descr += ", s=" + iState;
@@ -386,7 +427,7 @@ public class Space {
 	 * @return	String containing the saved regions
 	 */
 	public String regionsToXML() {
-		// FIXME add support for writing rules on region=NONE/none or no region
+		
 		String out = "<regions";
 		// not all regions have names
 		if (name != null && !name.equals(""))
@@ -410,6 +451,16 @@ public class Space {
 	public String rulesToXML() {
 		
 		String out = "<rules>\n";
+		
+		// dump out the pan-region rules
+		if (onStartup != null)
+			out += onStartup.toXML();
+		if (actorEntry != null)
+			out += actorEntry.toXML();
+		if (actorEntry != null)
+			out += actorEntry.toXML();
+		
+		// then dump out the rules in each defined region
 		Iterator<Region> it = regions.iterator();
 		while(it.hasNext()) {
 			Region r = (Region) it.next();
@@ -433,9 +484,6 @@ public class Space {
 		
 		return out;
 	}
-
-
-	// FIXME - make sure actor creation/destruction works too
 	
 	/**
 	 * test entry-point to automatically walk a space
@@ -483,6 +531,9 @@ public class Space {
 				exitPos = new Coord(farRight + border, 0, 0);
 				entryPos = new Coord(farLeft - border, 0, 0);
 			}
+			
+			// and trigger the start-up processing
+			processPosition(null, null);
 		}
 		
 		Coord posn;			// actor's current position
@@ -495,6 +546,7 @@ public class Space {
 			goal = entryPos;
 			goal_name = "ENTRANCE";
 			a.lastPosition(entryPos);
+			addActor(a);
 			lastActor = a;
 			lastRegion = 0;		
 		} else if (lastRegion < numRegions()) {
@@ -516,6 +568,7 @@ public class Space {
 			if (lastRegion > numRegions()) {	// we've finished this walk
 				if (debugLevel > 1)
 					System.out.println("   ... Actor " + a + " visited all " + lastRegion + " regions");
+				dropActor(lastActor);
 				lastActor = null;
 				return false;				// move on to next actor
 			}
