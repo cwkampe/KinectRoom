@@ -124,9 +124,39 @@ public class KinectedSpaceApp {
 	public void run() {
 		room.start();
 		
+		int minActor = -1;
+		int maxActor = -1;
+		int actors = 0;
+		
 		while( !room.finished) {
 			sense.update();
 			int n = sense.numUsers();
+			int lowest = 99999;
+			
+			// look for added or lost actors
+			if (n != actors) {
+				for(int i = 0; i < n; i++) {
+					// see if any new actors have been added
+					int a = sense.actor(i);
+					if (a > maxActor) {
+						room.addActor(a);
+						maxActor = a;
+					} else if (a < lowest)
+						lowest = a;
+				}
+				
+				// see if we lost any actors
+				if (lowest != 99999) {
+					if (minActor == -1)
+						minActor = lowest;
+					while(lowest > minActor) {
+						room.dropActor(minActor++);
+					}
+				}
+		
+				actors = n;
+			}
+			
 			for(int i = 0; i < n; i++)
 				room.update(sense.actor(i), sense.getCoM(i));
 		}

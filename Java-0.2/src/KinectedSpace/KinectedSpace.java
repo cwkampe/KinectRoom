@@ -107,8 +107,6 @@ public class KinectedSpace extends JWindow
 			}
 		}
 		
-		// FIXME - need to detect actor disappearance
-		
 		/*
 		 * Garbage collection
 		 * 		To avoid creating a watcher-style path for 
@@ -131,13 +129,40 @@ public class KinectedSpace extends JWindow
 			if (actors[i] == null) {
 				actors[i] = new Actor(name, null);
 				updates[i] = 0;
-				s.addActor(actors[i]);
 				return( actors[i] );
 			}
 		
 		return( null );		// can't reach
 	}
-
+	
+	/**
+	 * note the arrival of a new actor
+	 * 
+	 * @param	number of new actor
+	 */
+	public void addActor(int actorNumber) {
+		Actor a = findActor(actorNumber);
+		s.addActor(a);
+	}
+	
+	/**
+	 * note the departure of an actor
+	 * 
+	 * @param	number of departed actor
+	 */
+	public void dropActor(int actorNumber) {
+		String name = "Actor-" + actorNumber;
+		
+		// see if we can find a record for this actor
+		for( int i = 0; i < maxActors; i++ ) {
+			if (actors[i] != null && name.equals(actors[i].toString())) {
+				s.dropActor(actors[i]);
+				actors[i] = null;
+				return;
+			}
+		}
+	}
+	
 	/**
 	 * read a set of region definitions into the space
 	 * 
