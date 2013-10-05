@@ -14,6 +14,7 @@ public class KinectedSpaceApp {
 	
 	private UserSensor sense;	// reference to KinectSensor Instance
 	private KinectedSpace room;	// reference to KinectedSpace instance
+	private int debugLevel;		// level of diagnostics
 
 	private static String usage[] = {
 		"kinectedSpace.java [switches] [regions-file] [rules-file]",
@@ -105,7 +106,7 @@ public class KinectedSpaceApp {
 	/**
 	 * initialize an app instance
 	 */
-	public KinectedSpaceApp( String regionFile, String ruleFile, String prefix, Dimension d, int debugLevel ) {		
+	public KinectedSpaceApp( String regionFile, String ruleFile, String prefix, Dimension d, int debug ) {		
 		// create the basic space
 		room = new KinectedSpace(d);
 		room.debug(debugLevel);
@@ -113,11 +114,13 @@ public class KinectedSpaceApp {
 		room.prefix(prefix);
 		room.readRules(ruleFile);
 		sense = null;
+		debugLevel = debug;
 	}
 	
 	/**
 	 * main loop
 	 * 		update the sensor
+	 * 		check for added and dropped actors
 	 * 		for each user
 	 * 			get his position, and pass it to the room
 	 */
@@ -160,6 +163,8 @@ public class KinectedSpaceApp {
 			for(int i = 0; i < n; i++)
 				room.update(sense.actor(i), sense.getCoM(i));
 		}
+		if (debugLevel > 0)
+			System.out.println("Finish detected, exiting");
 		System.exit(0);
 	}
 

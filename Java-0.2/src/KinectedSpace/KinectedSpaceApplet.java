@@ -128,6 +128,9 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 			for(int i = 0; i < n; i++)
 				room.update(sense.actor(i), sense.getCoM(i));
 		}
+		
+		if (debugLevel > 0)
+			System.out.println("finish detected, return from run");
 	}
 	
 	/**
