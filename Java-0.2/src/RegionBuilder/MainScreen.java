@@ -40,7 +40,6 @@ public class MainScreen extends JFrame
 	private JMenuItem fileExit;
 	private JMenuItem fileSave;
 	private JMenuItem fileLoadRegions;
-	private JLabel screen;
 	private JButton createButton;
 	
 	private JFileChooser chooser;

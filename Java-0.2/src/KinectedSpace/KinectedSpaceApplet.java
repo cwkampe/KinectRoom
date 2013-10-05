@@ -24,6 +24,7 @@ public class KinectedSpaceApplet extends Applet implements Runnable {
 	private static final int HEIGHT = 768;
 	private static final int WIDTH = 1024;
 	
+	private static final long serialVersionUID = 1L;	// LAME
 	// TODO - can I use the applet window for my image displays?
 	
 	/**

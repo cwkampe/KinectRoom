@@ -21,7 +21,8 @@ public class UserSensor {
 
     private Context context;				// session
     private DepthGenerator depthGen;		// depth generator (used by user generator)
-    private int width, height;				// sensor resolution
+    @SuppressWarnings("unused")
+	private int width, height;				// sensor resolution
     private UserGenerator userGen;			// user generator
     
     private static final int maxUsers = 10;	// max concurrently trackable users
@@ -145,6 +146,7 @@ public class UserSensor {
      */
 	public void update() {
 		try {
+			@SuppressWarnings("unused")
 			DepthMetaData depthMD = depthGen.getMetaData();
 			context.waitAnyUpdateAll();
 			users = userGen.getUsers();
