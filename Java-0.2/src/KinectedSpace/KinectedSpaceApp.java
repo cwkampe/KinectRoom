@@ -107,6 +107,8 @@ public class KinectedSpaceApp {
 	 * initialize an app instance
 	 */
 	public KinectedSpaceApp( String regionFile, String ruleFile, String prefix, Dimension d, int debug ) {		
+		debugLevel = debug;
+		
 		// create the basic space
 		room = new KinectedSpace(d);
 		room.debug(debugLevel);
@@ -114,7 +116,7 @@ public class KinectedSpaceApp {
 		room.prefix(prefix);
 		room.readRules(ruleFile);
 		sense = null;
-		debugLevel = debug;
+		
 	}
 	
 	/**

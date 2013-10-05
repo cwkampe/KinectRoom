@@ -16,8 +16,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileReader;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
@@ -43,8 +44,8 @@ public class KinectedSpace extends JWindow
 	private Dimension size;		// specified window size
 	private Image image;		// active display image
 	private Clip clip;			// active audio clip
+	private String overText;	// text to put on top of image
 	
-	private String prefix;		// base prefix for files
 	private	int debugLevel;		// how noisy we want to be
 	private int testsRun;		// how many tests have we run
 	private boolean ignoreY;	// ignore Y values
@@ -52,15 +53,17 @@ public class KinectedSpace extends JWindow
 	// pseudo-tunable constants
 	private static final int MAX_ACTORS = 10;	// maximum concurrent actors
 	
+	private static final long serialVersionUID = 1L;	// LAME
+	
 	public KinectedSpace( Dimension d ) {
 		size = d;				// note our window size
 		finished = false;		// we're running
 		ignoreY = true;			// treat space as two dimensional
 		maxActors = MAX_ACTORS;	// limited number of concurrent actors
 		testsRun = 0;			// we haven't run any tests yet
-		prefix = null;			// we have no base prefix
 		clip = null;			// we are not playing any sounds
 		image = null;			// we are not displaying any images
+		overText = null;		// we do not have any overlay text
 		
 		s = new Space();
 		
@@ -195,7 +198,6 @@ public class KinectedSpace extends JWindow
 	 * @param base
 	 */
 	public void prefix( String base ) {
-		this.prefix = base;
 		s.prefix( base );
 	}
 	
@@ -279,6 +281,7 @@ public class KinectedSpace extends JWindow
 		a.lastPosition(pos);			// update the known position
 	}
 
+	// TODO I should pull these out into a separate class
 	public void displayImage(String filename) {
 		if (debugLevel > 1)
 			System.out.println("   ... display image file: " + filename);
@@ -306,6 +309,11 @@ public class KinectedSpace extends JWindow
 	 */
 	public void paint( Graphics g ) {
 		g.drawImage(image, 0, 0, (int) size.getWidth(), (int) size.getHeight(), this);
+		if (overText != null) {
+			int top = (int) size.getHeight()/4;
+			int left = (int) size.getWidth()/4;
+			g.drawString(overText, top, left);
+		}
 	}
 
 	/**
@@ -322,7 +330,9 @@ public class KinectedSpace extends JWindow
 			clip.open(in);
 			clip.start();
 		} catch (Exception e) {
-			
+			System.out.println("Error playing sound file: " + filename);
+			e.printStackTrace();
+			clip = null;
 		}
 	}
 
@@ -343,16 +353,29 @@ public class KinectedSpace extends JWindow
 	 * @param filename
 	 */
 	public void displayText(String filename) {
-		System.out.println("UNIMPLEMENTED: display text from file " + filename);
-		// TODO implement text display
+		if (debugLevel > 1)
+			System.out.println("   ... display text file: " + filename);
+		try {
+			BufferedReader r = new BufferedReader(new FileReader(filename));
+			String s;
+			// FIX append this all together
+			while ((s = r.readLine()) != null) {
+				overText = s;
+			}
+			r.close();
+			repaint();
+		} catch (Exception e) {
+			System.out.println("Error processing text file: " + filename);
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * clear the displayed text
 	 */
 	public void clearText() {
-		System.out.println("UNIMPLEMENTED: clear displayed text");
-		// TODO implement text clearing
+		overText = null;
+		repaint();
 	}
 	
 	// repaint the window when ever it reappears
