@@ -45,6 +45,7 @@ public class KinectedSpaceApp {
 		int width = WIDTH;
 		int testPasses = 0;
 		int debug = 0;
+		int delay = MS_PER_STEP;
 		
 		// process the command line arguments (why isn't there a standard for this?)
 		for( int i = 0; i < args.length; i++ ) {
@@ -62,6 +63,8 @@ public class KinectedSpaceApp {
 				debug = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
 			} else if (args[i].contains("test=")) {
 				testPasses = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
+			} else if (args[i].contains("delay=")) {
+				delay = Integer.parseInt(args[i].substring(args[i].indexOf('=') + 1));
 			} else if (args[i].contains("help") || args[i].contains("?")) {
 				usage();
 				return;
@@ -89,7 +92,7 @@ public class KinectedSpaceApp {
 		if (testPasses > 0) {
 			while( app.room.test(testPasses) ) {
 				try {
-					Thread.sleep(MS_PER_STEP);
+					Thread.sleep(delay);
 				} catch (InterruptedException ex) {
 					Thread.currentThread().interrupt();
 				}
