@@ -42,7 +42,21 @@ IMPORTING THIS PROJECT INTO Eclipse
 		are bypassing the Java Project Wizard that normally
 		sets this stuff up for you.
 
-    (SOON TO BE OBSOLETE)
+    4. Import OpenNI into the new project
+
+	FILE->Import->File System
+		browse to directory containing OpenNI.jar
+		import OpenNI.jar into the project
+	in package explorer, select org.OpenNI.jar
+		right click Build Path->Add to Buildpath
+		right click Build Path->Configure Build Path
+			open org.openNI.jar
+			select native library location
+			Edit
+			browse to directory containing OpenNI.jni.dll
+
+    OBSOLETE INSTRUCTIONS FOR SimpleOpenNI
+
     4. Complete the importation of SimpleOpenNI into the new project
 
 	Hopefully, all you have to do is copy the (appropriate) native 
@@ -65,17 +79,6 @@ IMPORTING THIS PROJECT INTO Eclipse
 		but not yet having my own kinect, I have not yet
 		tested that the bundled SimpleOpenNI.jar works and
 		properly binds to the native library.
-
-    (SOON TO REPLACE IT)
-    4. Import OpenNI into the new project
-
-	FILE->Import->File System
-		browse to directory containing OpenNI.jar
-		import OpenNI.jar into the project
-	in package explorer, select org.OpenNI.jar
-		right click Build Path->Add to Buildpath
-	edit build configurations, select OpenNI.jar, set binary location
-		browse to directory containing OpenNI.jni
 
 
     5. Create run configurations for the new project
