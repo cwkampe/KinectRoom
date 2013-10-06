@@ -378,6 +378,7 @@ public class Space {
 					r.setSound( value );
 				}
 				if (p.getNodeName().equals("text")) {
+					// TODO - add support for size/color/font/style parms
 					x = p.getAttributes().getNamedItem("file");
 					if (x != null) {
 						value = x.getNodeValue();

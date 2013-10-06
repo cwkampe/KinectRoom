@@ -1,7 +1,6 @@
 package RegionBuilder;
 
 import ActiveSpace.Coord;
-import ProcessingKinect.KinectSensor;
 
 /**
  * main class

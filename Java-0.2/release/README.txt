@@ -14,6 +14,7 @@ Programs and Parameters:
 		--height=pixels ... image display window height
 		--width=pixels ... image display window width
 		--test=# ... number of test users to run through the regions
+		--delay=# ... number of ms to wait between steps (in test mode)
 		
 	KinectedSpaceApplet.jar ... applet version of the performance program
 		takes the same parameters as the application
@@ -47,3 +48,16 @@ Configuration Files:
     Regions.xml ... defines the regions to be monitored
     Rules.xml ... defines operations to perform when regions are entered/exited
     
+KNOWN ISSUES:
+	
+    APPLICATION
+	It looks like the class path that comes with the app jar knows where
+	the OpenNI library has been installed.  We either have to always install
+	it in that place or figure out how to override the classpath for a 
+	distributed jar
+
+    APPLET
+	I haven't noticed any benefits that compensate for the limitations
+	(in the ability to use files and control your primary window), so
+	I have lost interest in the applet.  But If you want it, I can get
+	it working again pretty quickly.

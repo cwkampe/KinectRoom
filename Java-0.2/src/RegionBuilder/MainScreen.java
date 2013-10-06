@@ -10,7 +10,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import ActiveSpace.Coord;
 import ActiveSpace.Region;
 import ActiveSpace.Space;
-import ProcessingKinect.KinectSensor;
 
 /**
  * This class implements all of the GUI widgetry

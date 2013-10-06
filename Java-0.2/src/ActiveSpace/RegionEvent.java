@@ -125,6 +125,7 @@ public class RegionEvent {
 			if (textFile.equals("cancel"))
 				m.clearText();
 			else
+				// TODO - may want to support color/font/size/style parms
 				m.displayText(textFile);
 		}
 	}
