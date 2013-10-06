@@ -8,7 +8,9 @@ package KinectedSpace;
  *    a multi-media player capable of rendering sounds and images
  */
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
@@ -16,14 +18,19 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.swing.JWindow;
 
 import ActiveSpace.Actor;
@@ -44,7 +51,8 @@ public class KinectedSpace extends JWindow
 	private Dimension size;		// specified window size
 	private Image image;		// active display image
 	private Clip clip;			// active audio clip
-	private String overText;	// text to put on top of image
+	private String overText[];	// text to put on top of image
+	private Color textColor;	// color in which to render that text
 	
 	private	int debugLevel;		// how noisy we want to be
 	private int testsRun;		// how many tests have we run
@@ -52,6 +60,11 @@ public class KinectedSpace extends JWindow
 
 	// pseudo-tunable constants
 	private static final int MAX_ACTORS = 10;	// maximum concurrent actors
+	
+	// display text rendering
+	private static final int	DISPLAY_FONT_SIZE = 16;
+	private static final String	DISPLAY_FONT_STYLE = "BOLD";
+	private static final Color	DISPLAY_FONT_COLOR = Color.white;
 	
 	private static final long serialVersionUID = 1L;	// LAME
 	
@@ -72,6 +85,11 @@ public class KinectedSpace extends JWindow
 		this.pack();
 		this.setVisible(true);
 		blankImage();
+		
+		// choose our text display font, size, color
+		setFontSize(DISPLAY_FONT_SIZE);
+		setFontStyle(DISPLAY_FONT_STYLE);
+		setFontColor(DISPLAY_FONT_COLOR);
 		
 		// register ourselves as the multi-media player
 		s.media(this);
@@ -201,6 +219,9 @@ public class KinectedSpace extends JWindow
 		s.prefix( base );
 	}
 	
+	/**
+	 * return the name of this space
+	 */
 	public String name() {
 		return( s.name());
 	}
@@ -227,10 +248,10 @@ public class KinectedSpace extends JWindow
 	 */
 	public boolean test( int passes ) {		
 		// stop when we have run the requested number of tests
-		if (testsRun >= passes) {
+		if (testsRun >= passes)
 			finished = true;
+		if (finished)
 			return false;
-		}
 		
 		// figure out which actor we should be moving
 		Actor a = findActor(testsRun);
@@ -283,9 +304,16 @@ public class KinectedSpace extends JWindow
 
 	// TODO I should pull these out into a separate class
 	public void displayImage(String filename) {
+
+		// FIX this only works for files ... not URLs
+		File file = new File(filename);
+		if (!file.exists()) {
+			System.out.println("Unable to access input image: " + filename);
+			image = null;
+			return;
+		}
 		if (debugLevel > 1)
 			System.out.println("   ... display image file: " + filename);
-		File file = new File(filename);
 		try {
 			image = ImageIO.read(file);
 		} catch (Exception e) {
@@ -305,14 +333,41 @@ public class KinectedSpace extends JWindow
 	}
 	
 	/**
-	 * repaint our window with thye selected image
+	 * repaint our window with the selected image
+	 * 	implicit parameters:
+	 * 		self.image		image to be rendered
+	 * 		self.overText	array of text lines to put on top of it
+	 * 		self.getFont	current font, size, color
 	 */
 	public void paint( Graphics g ) {
-		g.drawImage(image, 0, 0, (int) size.getWidth(), (int) size.getHeight(), this);
+		int width = (int) size.getWidth();
+		int height = (int) size.getHeight();
+		
+		// render the image (which may be blank)
+		g.drawImage(image, 0, 0, width, (int) height, this);
+		
+		// see if we have any text to put on to pof the image
 		if (overText != null) {
-			int top = (int) size.getHeight()/4;
-			int left = (int) size.getWidth()/4;
-			g.drawString(overText, top, left);
+			// figure out text width and height
+			int textWidth = 0;
+			int textHeight = 0;
+			Font font = getFont();
+			FontMetrics m = getFontMetrics(font);
+			for (int i = 0; i < overText.length; i++) {
+				textHeight += m.getHeight();
+				int w = m.stringWidth(overText[i]);
+				if (w > textWidth)
+					textWidth = w;
+			}
+			
+			// render the text
+			g.setColor(textColor);	// I couldn't find g to do this sooner
+			int row = (textHeight > height) ? 0 : (height - textHeight) / 2;
+			int col = (textWidth > width) ? 0 : (width - textWidth) / 2;
+			for (int i = 0; i < overText.length; i++) {
+				g.drawString(overText[i], col, row);
+				row += m.getHeight();
+			}
 		}
 	}
 
@@ -321,12 +376,20 @@ public class KinectedSpace extends JWindow
 	 * @param filename
 	 */
 	public void playSound(String filename) {
+		// FIX this only works for files ... not URLs
+		File file = new File(filename);
+		if (!file.exists()) {
+			System.out.println("Unable to access sound file: " + filename);
+			clip = null;
+			return;
+		}
 		if (debugLevel > 1)
 			System.out.println("   ... play audio file: " + filename);
 		try {
-			File file = new File(filename);
 			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-			clip = AudioSystem.getClip();
+			AudioFormat format = in.getFormat();
+			DataLine.Info info = new DataLine.Info(Clip.class, format);
+			clip = (Clip) AudioSystem.getLine(info);
 			clip.open(in);
 			clip.start();
 		} catch (Exception e) {
@@ -353,21 +416,31 @@ public class KinectedSpace extends JWindow
 	 * @param filename
 	 */
 	public void displayText(String filename) {
+		overText = null;
+		
+		// FIX this only works for files ... not URLs
+		File file = new File(filename);
+		if (!file.exists()) {
+			System.out.println("Unable to access text file: " + filename);
+			return;
+		}
 		if (debugLevel > 1)
 			System.out.println("   ... display text file: " + filename);
+		List<String> l = new ArrayList<String>();
 		try {
 			BufferedReader r = new BufferedReader(new FileReader(filename));
 			String s;
-			// FIX append this all together
-			while ((s = r.readLine()) != null) {
-				overText = s;
-			}
+			while ((s = r.readLine()) != null)
+				l.add(s);
 			r.close();
-			repaint();
+			overText = l.toArray(new String[0]);
 		} catch (Exception e) {
 			System.out.println("Error processing text file: " + filename);
 			e.printStackTrace();
 		}
+		
+		// either way, we now need to refresh the display
+		repaint();
 	}
 
 	/**
@@ -377,6 +450,58 @@ public class KinectedSpace extends JWindow
 		overText = null;
 		repaint();
 	}
+	
+	/**
+	 * set font size for displayed text
+	 * @param size	font size
+	 */
+	public void setFontSize(int newSize) {
+		// figure out what we've got
+		Font current = getFont();
+		String name = current.getName();
+		int style = current.getStyle();
+		Font newFont = new Font(name, style, newSize);
+		setFont(newFont);
+	}
+	
+	/**
+	 * set font name for displayed text
+	 * @param newName	name of desired font
+	 */
+	public void setFontName(String newName) {
+		// figure out what we've got
+		Font current = getFont();
+		int style = current.getStyle();
+		int size = current.getSize();
+		Font newFont = new Font(newName, style, size);
+		setFont(newFont);
+	}
+	
+	public void setFontColor(Color color) {
+		textColor = color;
+		// apparently I can't follow the JWindow to its graphics context
+		// in order to directly do a setColor here ... so I just moved that
+		// call into the paint method (which does have the graphics context)
+	}
+	
+	/**
+	 * set font name for displayed text
+	 * @param newStile:	"plain", "bold", "italic"
+	 */
+	public void setFontStyle(String newStyle) {
+		// figure out what we've got
+		Font current = getFont();
+		String name = current.getName();
+		int size = current.getSize();
+		int style = Font.PLAIN;
+		if (newStyle.equals("BOLD") || newStyle.equals("bold"))
+			style = Font.BOLD;
+		else if (newStyle.equals("ITALIC") || newStyle.equals("italic"))
+			style = Font.ITALIC;
+		Font newFont = new Font(name, style, size);
+		setFont(newFont);
+	}
+	
 	
 	// repaint the window when ever it reappears
 	public void windowOpened(WindowEvent arg0) {

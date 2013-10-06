@@ -15,6 +15,7 @@
         <image file="cancel" />
     </rule>
     <rule name="enter A-big" region="A-big" event="ENTRY">
+    	<image file="cancel" />
     </rule>
     <rule name="exit A-big" region="A-big" event="EXIT">
     </rule>
