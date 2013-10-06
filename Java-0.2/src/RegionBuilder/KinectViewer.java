@@ -29,6 +29,8 @@ public class KinectViewer extends Component
 	private int click_pos;					// pixel index of last click
 	private Coord lastClick;				// real world coordinates
 	private int cursorX, cursorY;			// screen coordinates of cursor
+	private int dx;							// delta from frame to display
+	private int dy;							// delta from frame to display
 	
     private Context context;				// session
     private DepthGenerator depthGen;		// depth generator
@@ -83,6 +85,12 @@ public class KinectViewer extends Component
         f.pack();
         f.setVisible(true);
         
+        // compute the display window offset for mouse clicks
+        int fw = f.getWidth();
+        int fh = f.getHeight();
+        this.dx = (fw + 1 - width)/2;	// side borders are is symmetric
+        this.dy = fh - (height + dx);	// top border is much larger than bottom
+
         click_pos = -1;
         cursorX = -1;
         cursorY = -1;
@@ -218,9 +226,12 @@ public class KinectViewer extends Component
 	 * on-mouse click, note its pixel position
 	 */
 	public void mouseClicked(MouseEvent e) {
-		int x = e.getX();
-		int y = e.getY();
+		int x = e.getX() - dx;
+		int y = e.getY() - dy;
 		click_pos = x + (width * y);
+		if (debugLevel > 2) {
+			System.out.println("mouse click at <" + x + "," + y + ">");
+		}
 	}
 	
 	public void debug( int level ) {
