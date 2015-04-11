@@ -24,7 +24,8 @@ IMPORTING THIS PROJECT INTO Eclipse
 
 	http://www.vogella.com/articles/EGit/article.html
 
-    2. You need to install SimpleOpenNI on your system
+    2. for Processing, you need to install SimpleOpenNI on your system
+       (This is not needed for the newer KinectedSpace)
 
 	https://code.google.com/p/simple-openni/wiki/Installation
 	(except for copying SimpleOpenNI.zip into ~/sketchbook)
@@ -42,22 +43,48 @@ IMPORTING THIS PROJECT INTO Eclipse
 		are bypassing the Java Project Wizard that normally
 		sets this stuff up for you.
 
-    4. Import OpenNI into the new project
+    4. Install OpenNI on your system:
+
+    	Linux:
+		OpenNI		v1.5.7.10
+		SensorKinect	v5.1.2.1
+		I cloned the repos, built, and ran the install scripts
+		The instructions were imperfect, but it came up pretty quickly
+	
+	Windows:
+		I found installation instructions at
+			fivedots.coe.psu.ac.th/~ad/kinect/installation.html
+		It recommends using the installer at code.google.com, which includes
+		  OpenNI	1.5.4.0 (akwardly, much out of date)
+		  SensorKinect	5.1.2.1
+		
+		Download the installer and then, in this order, install
+			openni
+			sensor-win32
+			sensorkinect
+			nite
+
+    5. Import OpenNI into the new project
 
 	FILE->Import->File System
-		browse to directory containing OpenNI.jar
-		import OpenNI.jar into the project
+		browse to directory containing OpenNI jar 
+			Linux default: /usr/share/java
+			Windows default: C:\Program Files\OpenNI\Bin
+		import OpenNI.jar into the project (e.g. into Release subdirectory)
+		note that the old version is camelCase, the new version snakecase
+
 	in package explorer, select org.OpenNI.jar
 		right click Build Path->Add to Buildpath
 		right click Build Path->Configure Build Path
-			open org.openNI.jar
+			open org.openNI.jar 
 			select native library location
 			Edit
-			browse to directory containing OpenNI.jni.dll
+			browse to directory containing OpenNI.jni.dll (Linux: libOpenNI.jni.so)
+
 
     OBSOLETE INSTRUCTIONS FOR SimpleOpenNI
 
-    4. Complete the importation of SimpleOpenNI into the new project
+    6. Complete the importation of SimpleOpenNI into the new project
 
 	Hopefully, all you have to do is copy the (appropriate) native 
 	SimpleOpenNI library from SimpleOpenNI/library into the Java-0.2/bin
