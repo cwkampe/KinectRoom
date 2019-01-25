@@ -1,16 +1,16 @@
 package KinectedSpace;
 
-import org.OpenNI.IObservable;
-import org.OpenNI.IObserver;
-import org.OpenNI.License;
-import org.OpenNI.Point3D;
-import org.OpenNI.Context;
-import org.OpenNI.DepthGenerator;
-import org.OpenNI.DepthMetaData;
-import org.OpenNI.GeneralException;
-import org.OpenNI.StatusException;
-import org.OpenNI.UserEventArgs;
-import org.OpenNI.UserGenerator;
+import org.openni.IObservable;
+import org.openni.IObserver;
+import org.openni.License;
+import org.openni.Point3D;
+import org.openni.Context;
+import org.openni.DepthGenerator;
+import org.openni.DepthMetaData;
+import org.openni.GeneralException;
+import org.openni.StatusException;
+import org.openni.UserEventArgs;
+import org.openni.UserGenerator;
 
 import ActiveSpace.Coord;
 

@@ -13,13 +13,13 @@ import java.nio.ShortBuffer;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.OpenNI.License;
+import org.openni.License;
 // import org.OpenNI.OutArg;
-import org.OpenNI.Point3D;
-import org.OpenNI.Context;
-import org.OpenNI.DepthGenerator;
-import org.OpenNI.DepthMetaData;
-import org.OpenNI.GeneralException;
+import org.openni.Point3D;
+import org.openni.Context;
+import org.openni.DepthGenerator;
+import org.openni.DepthMetaData;
+import org.openni.GeneralException;
 
 import ActiveSpace.Coord;
 
